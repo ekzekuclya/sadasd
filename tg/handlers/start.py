@@ -38,6 +38,7 @@ async def take_order_op(callback: CallbackQuery, state: FSMContext, bot: Bot):
                 if order.operator != user:
                     await callback.message.edit_reply_markup(reply_markup=None)
                     await callback.answer("Заявку уже забрали :(")
+                    await state.clear()
                 elif order.operator == user:
                     await callback.answer("Заявку уже ваша")
                     await callback.message.answer("Отправьте реквизиты")
@@ -98,6 +99,7 @@ async def awaiting_req(msg: Message, state: FSMContext):
     order.req = msg.text
     order.save()
     await msg.answer(f"Реквизиты отправлены контр-агенту, ожидайте поступления! \n\n{msg.text}")
+    await state.clear()
 
 
 async def order_sender(msg: Message, order):
@@ -157,7 +159,7 @@ async def order_canceled(order):
     bot = bot_oper
     text = order_text_for_op.format(ltc_sum=order.ltc_sum, kgs_sum=order.kgs_sum)
     text += "\n\n❌ Контр-агент отменил платеж"
-    await bot.send_message(order.operator.user_id, text)
+    await bot.send_message(order.operator.user_id, text, parse_mode="Markdown")
 
 
 
