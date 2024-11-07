@@ -53,6 +53,12 @@ async def waiting_usdt(msg: Message):
 async def reposted_ltc(msg: Message, bot: Bot):
     try:
         user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
+        if user:
+            user.username = msg.from_user.username if msg.from_user.username else None
+            user.first_name = msg.from_user.first_name
+            user.last_name = msg.from_user.last_name
+            user.last_message_time = timezone.now()
+            user.save()
         ltc_sum = msg.text.replace(",", ".")
         total_usdt = await convert_ltc_to_usdt(ltc_sum, count=0)
         await coms(msg, total_usdt, ltc_sum, user)
