@@ -192,6 +192,7 @@ async def waiting_for_kvitto(msg: Message, state: FSMContext):
     await order_paid(order, file_path, file_type)
     os.remove(file_path)
     await msg.answer("Ожидайте подтверждения, можете отправить кошелек.")
+    await state.clear()
 
 
 @router.business_message(Form.waiting_for_ltc)
