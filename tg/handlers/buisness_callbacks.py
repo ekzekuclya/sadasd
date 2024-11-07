@@ -141,6 +141,7 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
             await state.update_data(order_id=order_id)
             await callback_query.message.answer("Отправьте фото чека")
         else:
+            await callback_query.message.edit_reply_markup(reply_markup=None)
             await callback_query.message.answer("Платеж на другой стадии")
 
 
