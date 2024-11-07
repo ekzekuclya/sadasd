@@ -204,6 +204,7 @@ async def waiting_ltc(msg: Message, state: FSMContext):
             ltc_sum = msg.text.replace(",", ".")
             total_usdt = await convert_ltc_to_usdt(ltc_sum, count=0)
             await coms(msg, total_usdt, ltc_sum, user)
+            await state.clear()
     except Exception as e:
         await msg.answer("Проверьте правильность набора")
         print(f"async def waiting_ltc, @router.business_message(Form.waiting_for_ltc)", e)
