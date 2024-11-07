@@ -134,12 +134,14 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
         order_id = data[2]
         order = await sync_to_async(Order.objects.filter)(id=order_id)
         order = order.first()
-        if not order.status == "declined":
+        if order.status == "wait_for_pay":
             order.status = "paid"
             order.save()
             await state.set_state(Paid.waiting_for_kvitto)
             await state.update_data(order_id=order_id)
             await callback_query.message.answer("Отправьте фото чека")
+        else:
+            await callback_query.message.answer("Платеж на другой стадии")
 
 
 async def download_photo(bot: Bot, file_id: str, file_path: str):

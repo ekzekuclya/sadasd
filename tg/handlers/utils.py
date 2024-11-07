@@ -104,6 +104,8 @@ async def check_invoice_paid(msg, order):
             builder.add(InlineKeyboardButton(text="Отмена платежа", callback_data=f"client_canceled_{order.id}"))
             builder.adjust(1)
             await msg.answer(text, reply_markup=builder.as_markup(), parse_mode="Markdown")
+            order.status = "wait_for_pay"
+            order.save()
             req = True
         elif order.status == "declined":
             await msg.answer("❌ Платеж не принят!")
