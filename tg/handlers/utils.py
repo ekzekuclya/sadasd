@@ -111,7 +111,7 @@ async def check_invoice_paid(msg, order):
             await msg.answer("❌ Платеж не принят!")
             break
         elif order.status == "confirmed":
-            await msg.answer("Платеж поступил, перевожу вам сумму")
+            await msg.answer("✅ Платеж поступил, выдаю чек")
             break
         elif count >= 15:
             await msg.answer(f"Просим прощения, все реквизиты сейчас заняты, обратитесь позже")

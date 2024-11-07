@@ -128,6 +128,7 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
         order = order.first()
         order.status = "canceled"
         order.save()
+        await callback_query.message.edit_reply_markup(reply_markup=None)
         await order_canceled(order)
     elif callback_query.data.startswith("client_payed_"):
         data = callback_query.data.split("_")
