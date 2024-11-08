@@ -5,7 +5,7 @@ order_text = ("🎟 *ЗАЯВКА НА ОБМЕН* 🎟\n\n"
               "")
 
 order_text_for_op = ("🎟 *ЗАЯВКА НА ОБМЕН* 🎟\n\n"
-                     "💵 _Покупка LTC:_ `{ltc_sum}`\n"
+                     "💵 _Сумма в LTC:_ `{ltc_sum}`\n"
                      "🇰🇬 _Сумма в KGS:_ `{kgs_sum}`\n")
 
 order_paid_for_op = "Клиент отметил, что оплатил!"

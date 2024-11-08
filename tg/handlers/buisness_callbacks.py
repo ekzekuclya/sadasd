@@ -30,13 +30,15 @@ class Paid(StatesGroup):
 
 
 @router.business_message(Form.waiting_for_usdt)
-async def waiting_usdt(msg: Message):
+async def waiting_usdt(msg: Message, state: FSMContext):
     try:
         user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
 
         if msg.text:
             try:
                 usdt = int(msg.text)
+                if msg.photo:
+                    return
             except Exception as e:
                 await msg.answer("Неверный формат")
                 return
@@ -44,6 +46,7 @@ async def waiting_usdt(msg: Message):
             ltc_sum = round(ltc_sum, 8)
             total_usdt = await convert_ltc_to_usdt(ltc_sum, count=0)
             await coms(msg, total_usdt, ltc_sum, user)
+            await state.clear()
     except Exception as e:
         await msg.answer("Проверьте правильность набора")
         print(f"async def waiting_ltc, @router.business_message(Form.wфше)", e)
