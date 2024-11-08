@@ -41,9 +41,8 @@ async def take_order_op(callback: CallbackQuery, state: FSMContext, bot: Bot):
                     await state.clear()
                 elif order.operator == user:
                     await callback.answer("Заявку уже ваша")
-                    await callback.message.answer("Отправьте реквизиты")
-                    await state.set_state(Req.awaiting_req)
-                    await state.update_data(order_id=order_id)
+                    await callback.message.edit_reply_markup(reply_markup=None)
+                    await state.clear()
             elif not order.operator:
                 order.operator = user
                 order.status = "wait_for_req"
