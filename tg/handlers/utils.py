@@ -114,7 +114,10 @@ async def check_invoice_paid(msg, order):
             await msg.answer("✅ Платеж поступил, выдаю чек")
             break
         elif count >= 15:
-            await msg.answer(f"Просим прощения, все реквизиты сейчас заняты, обратитесь позже")
+            if not order.req:
+                await msg.answer(f"Просим прощения, все реквизиты сейчас заняты, обратитесь позже")
+            else:
+                await msg.answer("Платеж отменен, просим не злоупотреблять ботом :)")
             break
         elif order.status == "canceled":
             await msg.answer("Платеж отменен, просим не злоупотреблять ботом :)")
