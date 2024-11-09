@@ -77,13 +77,13 @@ async def controll(msg: Message, bot: Bot):
         if msg.text:
             await bot.send_photo(chat_id=chat, photo=photo_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
         else:
-            await bot.send_photo(chat_id=chat, photo=photo_id)
+            await bot.send_photo(chat_id=chat, photo=photo_id, caption=f"{await get_profile_link(msg.from_user.id)}")
     elif msg.document:
         file_id = msg.document.file_id
         if msg.text:
             await bot.send_document(chat_id=chat, document=file_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
         else:
-            await bot.send_document(chat_id=chat, document=file_id)
+            await bot.send_document(chat_id=chat, document=file_id, caption=f"{await get_profile_link(msg.from_user.id)}")
     else:
         await bot.send_message(chat_id=chat, text=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
 
