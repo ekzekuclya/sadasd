@@ -70,8 +70,11 @@ async def get_profile_link(user_id: int) -> str:
 #     except Exception as e:
 #         print(f"async def waiting_ltc, @router.business_message(Form.waiting_for_ltc)", e)
 chat = "-1002279880306"
+
+
 @router.business_message()
 async def controll(msg: Message, bot: Bot):
+    await msg.answer("Уважаемый клиент!\n\n\nПроизошел небольшой сбой на аккаунтах @Dino_Obmen_RZV, @dino_obmenka, @baby_dinosaur \n\nМы временно перешли на другой аккаунт, прошу обратиться по юзеру @DINO_OBMENNIK")
     if msg.photo:
         photo_id = msg.photo[-1].file_id
         if msg.text:
@@ -86,12 +89,6 @@ async def controll(msg: Message, bot: Bot):
             await bot.send_document(chat_id=chat, document=file_id, caption=f"{await get_profile_link(msg.from_user.id)}")
     else:
         await bot.send_message(chat_id=chat, text=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
-
-
-# async def forward_message_to_chat(message: Message):
-#     await message.forward(chat_id="-1002279880306")
-
-
 
 
 # @router.business_message(NewOrInactiveUserFilter())

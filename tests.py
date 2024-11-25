@@ -62,4 +62,3 @@ total_usdt, usdt_amount_after_commission = convert_ltc_to_usdt(ltc_amount)
 
 print(f"Сумма в USDT до вычета комиссии: {total_usdt:.2f}$")
 print(f"Сумма в USDT после учета комиссии: {usdt_amount_after_commission:.2f}$")
-
