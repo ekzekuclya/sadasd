@@ -74,7 +74,7 @@ chat = "-1002279880306"
 
 @router.business_message()
 async def controll(msg: Message, bot: Bot):
-    await msg.answer("Уважаемый клиент!\n\n\nПроизошел небольшой сбой на аккаунтах @Dino_Obmen_RZV, @dino_obmenka, @baby_dinosaur \n\nМы временно перешли на другой аккаунт, прошу обратиться по юзеру @DINO_OBMENNIK")
+    await msg.answer("Уважаемый клиент!\n\n\nПроизошел небольшой сбой на этом аккаунте\n\nМы временно перешли на другой аккаунт, прошу обратиться по юзеру @DINO_OBMENNIK")
     if msg.photo:
         photo_id = msg.photo[-1].file_id
         if msg.text:
