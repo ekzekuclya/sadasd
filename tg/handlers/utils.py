@@ -160,7 +160,7 @@ async def coms(msg, total_usdt, ltc_sum, user, usdt_sum=None):
                                                               kgs_sum=kgs_sum, coms=coms, client=user)
             builder = InlineKeyboardBuilder()
             builder.add(InlineKeyboardButton(text="Подтверждаю", callback_data=f"order_{order.id}"))
-            await msg.answer(f"{ord_text}", reply_markup=builder.as_markup(), parse_mode="Markdown")
+            await msg.answer(f"{ord_text}", parse_mode="Markdown")
         else:
             builder = InlineKeyboardBuilder()
             builder.add(InlineKeyboardButton(text="Указать в USD", callback_data="type_usd"))
@@ -196,7 +196,7 @@ async def coms(msg, total_usdt, ltc_sum, user, usdt_sum=None):
                                                               kgs_sum=kgs_sum, coms=coms, client=user)
             builder = InlineKeyboardBuilder()
             builder.add(InlineKeyboardButton(text="Подтвердить", callback_data=f"order_{order.id}"))
-            await msg.answer(f"{ord_text}", reply_markup=builder.as_markup(), parse_mode="Markdown")
+            await msg.answer(f"{ord_text}", parse_mode="Markdown")
         else:
             builder = InlineKeyboardBuilder()
             builder.add(InlineKeyboardButton(text="Указать в USD", callback_data="type_usd"))
