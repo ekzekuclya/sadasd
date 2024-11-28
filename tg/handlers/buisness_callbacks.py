@@ -58,7 +58,7 @@ async def get_profile_link(user_id: int) -> str:
 
 
 @router.business_message(IsUSDT())
-async def reposted_ltc(msg: Message, bot: Bot):
+async def reposted_usd(msg: Message, bot: Bot):
     try:
         user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
         if user:
@@ -68,11 +68,10 @@ async def reposted_ltc(msg: Message, bot: Bot):
             user.last_message_time = timezone.now()
             user.save()
         text = msg.text.strip()
-        amount = text[:-1]
-
+        amount = int(text[:-1])
         await comsusdt(msg, amount, user)
     except Exception as e:
-        print(f"async def waiting_ltc, @router.business_message(Form.waiting_for_ltc)", e)
+        print(f"reposted_usd", e)
 
 
 @router.business_message(IsFloatFilter())
@@ -89,7 +88,7 @@ async def reposted_ltc(msg: Message, bot: Bot):
         total_usdt = await convert_ltc_to_usdt(ltc_sum, count=0)
         await coms(msg, total_usdt, ltc_sum, user)
     except Exception as e:
-        print(f"async def waiting_ltc, @router.business_message(Form.waiting_for_ltc)", e)
+        print(f"reposted_ltc", e)
 chat = "-1002279880306"
 
 

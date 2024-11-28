@@ -55,6 +55,7 @@ class IsUSDT(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         if message.text:
             text = message.text.strip()
+            print(text)
             if text.endswith("$"):
                 amount = text[:-1]
                 try:
