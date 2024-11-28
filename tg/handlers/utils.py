@@ -187,9 +187,7 @@ async def coms(msg, total_usdt, ltc_sum, user, usdt_sum=None):
             elif 70 < total_usdt <= 120:
                 kgs_sum = total_usdt * course.usdt + course.coms_70_120
                 coms = course.coms_70_120
-            else:
-                coms = course.coms_70_120 + course.coms_70_120
-                kgs_sum = total_usdt * course.usdt + coms
+
             print(ltc_sum)
             ord_text = order_text.format(ltc_sum=ltc_sum, kgs_sum=int(kgs_sum))
             # order = await sync_to_async(Order.objects.create)(ltc_sum=float(ltc_sum), status="created",
