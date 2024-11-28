@@ -10,7 +10,8 @@ from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, Ch
 from django.db.models import Q
 from django.utils import timezone
 from .start import order_sender, order_canceled, order_paid
-from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, check_invoice_paid, convert_usdt_to_ltc, coms
+from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, check_invoice_paid, convert_usdt_to_ltc, \
+    coms, IsUSDT, comsusdt
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from asgiref.sync import sync_to_async
 from ..models import TelegramUser, CurrentCourse, Order
@@ -54,6 +55,26 @@ async def get_profile_link(user_id: int) -> str:
 #         print(f"async def waiting_ltc, @router.business_message(Form.wфше)", e)
 #
 #
+
+
+@router.business_message(IsUSDT())
+async def reposted_ltc(msg: Message, bot: Bot):
+    try:
+        user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
+        if user:
+            user.username = msg.from_user.username if msg.from_user.username else None
+            user.first_name = msg.from_user.first_name
+            user.last_name = msg.from_user.last_name
+            user.last_message_time = timezone.now()
+            user.save()
+        text = msg.text.strip()
+        amount = text[:-1]
+
+        await comsusdt(msg, amount, user)
+    except Exception as e:
+        print(f"async def waiting_ltc, @router.business_message(Form.waiting_for_ltc)", e)
+
+
 @router.business_message(IsFloatFilter())
 async def reposted_ltc(msg: Message, bot: Bot):
     try:

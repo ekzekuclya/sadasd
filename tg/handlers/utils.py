@@ -2,7 +2,7 @@ import asyncio
 
 import requests
 from aiogram.filters import BaseFilter
-from ..text import order_text_for_op, order_text
+from ..text import order_text_for_op, order_text, order_text_usd
 from ..models import TelegramUser, CurrentCourse, Order
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -51,15 +51,31 @@ class NewOrInactiveUserFilter(BaseFilter):
         return False
 
 
+class IsUSDT(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        if message.text:
+            text = message.text.strip()
+            if text.endswith("$"):
+                amount = text[:-1]
+                try:
+                    int(amount)
+                    return True
+                except ValueError:
+                    return False
+        return False
+
+
 class IsFloatFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         if message.text:
             text = message.text.replace(",", ".")
-            try:
-                float(text)
-                return True
-            except ValueError:
-                return False
+            if "." in text:
+                try:
+                    float(text)
+                    return True
+                except ValueError:
+                    return False
+        return False
 
 
 async def convert_kgs_to_ltc(msg, kgs_amount):
@@ -127,45 +143,41 @@ async def check_invoice_paid(msg, order):
             await asyncio.sleep(5)
 
 
+async def comsusdt(msg, usdt_sum, user):
+    if usdt_sum is not None:
+        if usdt_sum >= 1:
+            course = await sync_to_async(CurrentCourse.objects.first)()
+            if usdt_sum <= 5:
+                kgs_sum = usdt_sum * course.usdt + course.coms_5
+                coms = course.coms_5
+            elif 5 < usdt_sum <= 10:
+                kgs_sum = usdt_sum * course.usdt + course.coms_5_10
+                coms = course.coms_5_10
+            elif 10 < usdt_sum <= 20:
+                kgs_sum = usdt_sum * course.usdt + course.coms_10_20
+                coms = course.coms_10_20
+            elif 20 < usdt_sum <= 30:
+                kgs_sum = usdt_sum * course.usdt + course.coms_20_30
+                coms = course.coms_20_30
+            elif 30 < usdt_sum <= 70:
+                kgs_sum = usdt_sum * course.usdt + course.coms_30_70
+                coms = course.coms_30_70
+            elif 70 < usdt_sum <= 120:
+                kgs_sum = usdt_sum * course.usdt + course.coms_70_120
+                coms = course.coms_70_120
+
+            ltc_sum = await convert_usdt_to_ltc(usdt_sum)
+            ltc_sum = round(ltc_sum, 8)
+            print(ltc_sum)
+            ord_text = order_text_usd.format(ltc_sum=ltc_sum, kgs_sum=int(kgs_sum), usdt_sum=usdt_sum)
+            # order = await sync_to_async(Order.objects.create)(ltc_sum=float(ltc_sum), status="created",
+            #                                                   kgs_sum=kgs_sum, coms=coms, client=user)
+            # builder = InlineKeyboardBuilder()
+            # builder.add(InlineKeyboardButton(text="Подтверждаю", callback_data=f"order_{order.id}"))
+            await msg.answer(f"{ord_text}", parse_mode="Markdown")
+
+
 async def coms(msg, total_usdt, ltc_sum, user, usdt_sum=None):
-    # if usdt_sum is not None:
-    #     if usdt_sum >= 1:
-    #         course = await sync_to_async(CurrentCourse.objects.first)()
-    #         if usdt_sum <= 5:
-    #             kgs_sum = usdt_sum * course.usdt + course.coms_5
-    #             coms = course.coms_5
-    #         elif 5 < usdt_sum <= 10:
-    #             kgs_sum = usdt_sum * course.usdt + course.coms_5_10
-    #             coms = course.coms_5_10
-    #         elif 10 < usdt_sum <= 20:
-    #             kgs_sum = usdt_sum * course.usdt + course.coms_10_20
-    #             coms = course.coms_10_20
-    #         elif 20 < usdt_sum <= 30:
-    #             kgs_sum = usdt_sum * course.usdt + course.coms_20_30
-    #             coms = course.coms_20_30
-    #         elif 30 < usdt_sum <= 70:
-    #             kgs_sum = usdt_sum * course.usdt + course.coms_30_70
-    #             coms = course.coms_30_70
-    #         elif 70 < usdt_sum <= 120:
-    #             kgs_sum = usdt_sum * course.usdt + course.coms_70_120
-    #             coms = course.coms_70_120
-    #         else:
-    #             coms = course.coms_70_120 + course.coms_70_120
-    #             kgs_sum = usdt_sum * course.usd + coms
-    #         ltc_sum = await convert_usdt_to_ltc(usdt_sum)
-    #         ltc_sum = round(ltc_sum, 8)
-    #         print(ltc_sum)
-    #         ord_text = order_text.format(ltc_sum=ltc_sum, kgs_sum=int(kgs_sum))
-    #         order = await sync_to_async(Order.objects.create)(ltc_sum=float(ltc_sum), status="created",
-    #                                                           kgs_sum=kgs_sum, coms=coms, client=user)
-    #         builder = InlineKeyboardBuilder()
-    #         builder.add(InlineKeyboardButton(text="Подтверждаю", callback_data=f"order_{order.id}"))
-    #         await msg.answer(f"{ord_text}", parse_mode="Markdown")
-    #     else:
-    #         builder = InlineKeyboardBuilder()
-    #         builder.add(InlineKeyboardButton(text="Указать в USD", callback_data="type_usd"))
-    #         await msg.answer("Минимальный платёж 1$", reply_markup=builder.as_markup())
-    #     return
     if ltc_sum:
         if total_usdt >= 1:
             course = await sync_to_async(CurrentCourse.objects.first)()
