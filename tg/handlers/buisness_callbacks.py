@@ -119,7 +119,7 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
         active_ticket_count=Count('ticket', filter=Q(ticket__activated=True)))
     users_with_ticket_count = users_with_ticket_count.order_by('-active_ticket_count')
     user_active_ticket_count = user.ticket_set.filter(activated=True).count()
-    position = users_with_ticket_count.filter(active_ticket_count__gte=user_active_ticket_count).count() + 1
+    position = users_with_ticket_count.filter(active_ticket_count__gte=user_active_ticket_count).count()
 
     print(f"Позиция пользователя {user.id} по количеству активированных тикетов: {position}")
     names = f"{user.first_name if user.first_name else ''} {user.last_name if user.last_name else ''}"
