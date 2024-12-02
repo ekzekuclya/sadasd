@@ -122,8 +122,8 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
     position = users_with_ticket_count.filter(active_ticket_count__gte=user_active_ticket_count).count() + 1
 
     print(f"Позиция пользователя {user.id} по количеству активированных тикетов: {position}")
-
-    await msg.answer(ticket_text.format(username=user.first_name + user.last_name, sumtickets=count, rulya=position), parse_mode="Markdown")
+    names = f"{user.first_name} {user.last_name}"
+    await msg.answer(ticket_text.format(username=names, sumtickets=count, rulya=position), parse_mode="Markdown")
 
 @router.business_message(F.text == "Отправлено 👍")
 async def ticket(msg: Message, bot: Bot):
