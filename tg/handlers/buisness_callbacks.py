@@ -165,6 +165,7 @@ async def controll(msg: Message, bot: Bot):
 
 @router.message(Command("roulette"))
 async def finish_roul(msg: Message, state: FSMContext, command: CommandObject, bot: Bot):
+    user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
     if user:
         user.username = msg.from_user.username if msg.from_user.username else None
         user.first_name = msg.from_user.first_name
