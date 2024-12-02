@@ -93,7 +93,7 @@ chat = "-1002279880306"
 
 
 @router.message(Command("start"))
-async def startish(msg: Message, bot: Bot, cmd: CommandObject):
+async def startish(msg: Message, state: FSMContext, command: CommandObject, bot: Bot):
     user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
     if user:
         user.username = msg.from_user.username if msg.from_user.username else None
