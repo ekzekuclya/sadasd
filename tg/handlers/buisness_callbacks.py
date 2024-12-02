@@ -19,6 +19,7 @@ from ..text import order_text, ticket_text
 from core.config import bot_oper, bot_main
 router = Router()
 import random
+from django.db import models
 
 async def get_profile_link(user_id: int) -> str:
     return f"tg://user?id={user_id}"
@@ -160,6 +161,41 @@ async def controll(msg: Message, bot: Bot):
             await bot.send_document(chat_id=chat, document=file_id, caption=f"{await get_profile_link(msg.from_user.id)}")
     else:
         await bot.send_message(chat_id=chat, text=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
+
+
+@router.message(Command("roulette"))
+async def finish_roul(msg: Message, state: FSMContext, command: CommandObject, bot: Bot):
+    if user:
+        user.username = msg.from_user.username if msg.from_user.username else None
+        user.first_name = msg.from_user.first_name
+        user.last_name = msg.from_user.last_name
+        user.last_message_time = timezone.now()
+        user.save()
+    if user.is_admin:
+        args = command.args
+        if args and args.isdigit():
+            num_prizers = int(args)
+        else:
+            return
+        top_prizers = await sync_to_async(lambda:
+                                          TelegramUser.objects
+                                          .annotate(ticket_count=Count('ticket', filter=models.Q(ticket__activated=True)))
+                                          .order_by('-ticket_count')
+                                          .filter(ticket_count__gt=0)[:num_prizers]
+                                          )()
+
+        if top_prizers:
+            response = "[🎊] (https://telegra.ph/file/09cbf544d43e49bba72d1.mp4) Победители розыгрыша::\n"
+            count = 1
+            for user in top_prizers:
+                response += f"{count} {user.username if user.username else user.user_id}: `{user.ticket_count}` билетов\n"
+                count += 1
+            await msg.answer(response)
+        else:
+            await msg.answer("Нет призеров с активированными билетами.")
+
+
+
 
 
 # @router.business_message(NewOrInactiveUserFilter())
