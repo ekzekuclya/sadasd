@@ -128,6 +128,7 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
     builder.add(InlineKeyboardButton(text="💌 Подпишись", url="https://t.me/Dino_LTC"))
     await msg.answer(ticket_text.format(username=names, sumtickets=count, rulya=position), parse_mode="Markdown", reply_markup=builder.as_markup())
 
+
 @router.business_message(F.text == "Отправлено 👍")
 async def ticket(msg: Message, bot: Bot):
     user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
@@ -142,7 +143,8 @@ async def ticket(msg: Message, bot: Bot):
         user_bot = bot_user.username
         ticket = await sync_to_async(Ticket.objects.create)()
         url = f"http://t.me/{user_bot}?start={ticket.ticket}"
-        await msg.answer(f"Ваш билет --> [ПОЛУЧИТЬ]({url})", parse_mode="Markdown")
+        text = f"[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
+        await msg.answer(text, parse_mode="Markdown")
 
 @router.business_message()
 async def controll(msg: Message, bot: Bot):
