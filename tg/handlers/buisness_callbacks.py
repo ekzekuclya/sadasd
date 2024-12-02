@@ -101,8 +101,9 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
         user.last_name = msg.from_user.last_name
         user.last_message_time = timezone.now()
         user.save()
-    args = msg.get_args()
-    if args:
+
+    if command:
+        args = command.args
         tickets = await sync_to_async(Ticket.objects.filter)(ticket=args)
         ticket = tickets.first()
         if ticket:
