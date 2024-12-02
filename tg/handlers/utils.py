@@ -167,9 +167,6 @@ async def comsusdt(msg, usdt_sum, user):
                 kgs_sum = usdt_sum * course.usdt + course.coms_70_120
                 coms = course.coms_70_120
 
-            ltc_sum = await convert_usdt_to_ltc(usdt_sum)
-            ltc_sum = round(ltc_sum, 8)
-            print(ltc_sum)
             ord_text = order_text_usd.format(kgs_sum=int(kgs_sum), usdt_sum=usdt_sum)
             # order = await sync_to_async(Order.objects.create)(ltc_sum=float(ltc_sum), status="created",
             #                                                   kgs_sum=kgs_sum, coms=coms, client=user)

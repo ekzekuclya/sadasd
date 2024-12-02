@@ -1,6 +1,6 @@
 import asyncio
 import os
-
+from django.db.models import Count
 from aiogram import Router, Bot, F
 from aiogram.filters import Command, CommandObject, BaseFilter
 from aiogram.fsm.context import FSMContext
@@ -14,8 +14,8 @@ from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, 
     coms, IsUSDT, comsusdt
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from asgiref.sync import sync_to_async
-from ..models import TelegramUser, CurrentCourse, Order
-from ..text import order_text
+from ..models import TelegramUser, CurrentCourse, Order, Ticket
+from ..text import order_text, ticket_text
 from core.config import bot_oper, bot_main
 router = Router()
 import random
@@ -91,6 +91,55 @@ async def reposted_ltc(msg: Message, bot: Bot):
         print(f"reposted_ltc", e)
 chat = "-1002279880306"
 
+
+@router.message(Command("start"))
+async def startish(msg: Message, bot: Bot, cmd: CommandObject):
+    user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
+    if user:
+        user.username = msg.from_user.username if msg.from_user.username else None
+        user.first_name = msg.from_user.first_name
+        user.last_name = msg.from_user.last_name
+        user.last_message_time = timezone.now()
+        user.save()
+    if cmd:
+        args = cmd.args
+        tickets = await sync_to_async(Ticket.objects.filter)(ticket=args)
+        ticket = tickets.first()
+        if ticket:
+            if not ticket.activated:
+                ticket.user = user
+                ticket.activated = True
+                ticket.save()
+                await msg.answer("Вы активировали 1 билет")
+    tickets = await sync_to_async(Ticket.objects.filter)(user=user, activated=True)
+    count = ticket.count()
+
+
+    users_with_ticket_count = await sync_to_async(TelegramUser.objects.annotate)(
+        active_ticket_count=Count('ticket', filter=Q(ticket__activated=True)))
+    users_with_ticket_count = users_with_ticket_count.order_by('-active_ticket_count')
+    user_active_ticket_count = user.ticket_set.filter(activated=True).count()
+    position = users_with_ticket_count.filter(active_ticket_count__gte=user_active_ticket_count).count() + 1
+
+    print(f"Позиция пользователя {user.id} по количеству активированных тикетов: {position}")
+
+    await msg.answer(ticket_text.format(username=user.first_name + user.last_name, sumtickets=count, rulya=position), parse_mode="Markdown")
+
+@router.business_message(F.text == "Отправлено 👍")
+async def ticket(msg: Message, bot: Bot):
+    user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
+    if user:
+        user.username = msg.from_user.username if msg.from_user.username else None
+        user.first_name = msg.from_user.first_name
+        user.last_name = msg.from_user.last_name
+        user.last_message_time = timezone.now()
+        user.save()
+    if user.is_admin:
+        bot_user = await bot.get_me()
+        user_bot = bot_user.username
+        ticket = await sync_to_async(Ticket.objects.create)()
+        url = f"http://t.me/{user_bot}?start={ticket.ticket}"
+        await msg.answer(f"Ваш билет --> [ПОЛУЧИТЬ]({url})", parse_mode="Markdown")
 
 @router.business_message()
 async def controll(msg: Message, bot: Bot):
