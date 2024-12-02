@@ -113,8 +113,7 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
                 ticket.save()
                 await msg.answer("Вы активировали 1 билет")
     tickets = await sync_to_async(Ticket.objects.filter)(user=user, activated=True)
-    count = ticket.count()
-
+    count = tickets.count()
 
     users_with_ticket_count = await sync_to_async(TelegramUser.objects.annotate)(
         active_ticket_count=Count('ticket', filter=Q(ticket__activated=True)))
