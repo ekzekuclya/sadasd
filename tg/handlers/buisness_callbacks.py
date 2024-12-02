@@ -123,7 +123,9 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
 
     print(f"Позиция пользователя {user.id} по количеству активированных тикетов: {position}")
     names = f"{user.first_name if user.first_name else ''} {user.last_name if user.last_name else ''}"
-    await msg.answer(ticket_text.format(username=names, sumtickets=count, rulya=position), parse_mode="Markdown")
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text="💌 Подпишись", url="https://t.me/Dino_LTC"))
+    await msg.answer(ticket_text.format(username=names, sumtickets=count, rulya=position), parse_mode="Markdown", reply_markup=builder.as_markup())
 
 @router.business_message(F.text == "Отправлено 👍")
 async def ticket(msg: Message, bot: Bot):
