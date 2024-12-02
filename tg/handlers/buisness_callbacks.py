@@ -93,7 +93,7 @@ chat = "-1002279880306"
 
 
 @router.message(Command("start"))
-async def startish(msg: Message, state: FSMContext, cmd: CommandObject, bot: Bot):
+async def startish(msg: Message, state: FSMContext, bot: Bot):
     user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
     if user:
         user.username = msg.from_user.username if msg.from_user.username else None
@@ -101,8 +101,8 @@ async def startish(msg: Message, state: FSMContext, cmd: CommandObject, bot: Bot
         user.last_name = msg.from_user.last_name
         user.last_message_time = timezone.now()
         user.save()
-    if cmd:
-        args = cmd.args
+    args = msg.get_args()
+    if args:
         tickets = await sync_to_async(Ticket.objects.filter)(ticket=args)
         ticket = tickets.first()
         if ticket:
