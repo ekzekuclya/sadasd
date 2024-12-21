@@ -21,41 +21,9 @@ router = Router()
 import random
 from django.db import models
 
+
 async def get_profile_link(user_id: int) -> str:
     return f"tg://user?id={user_id}"
-
-# class Form(StatesGroup):
-#     waiting_for_ltc = State()
-#     waiting_for_usdt = State()
-#
-#
-# class Paid(StatesGroup):
-#     waiting_for_kvitto = State()
-#
-#
-# @router.business_message(Form.waiting_for_usdt)
-# async def waiting_usdt(msg: Message, state: FSMContext):
-#     try:
-#         user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
-#
-#         if msg.text:
-#             try:
-#                 usdt = int(msg.text)
-#                 if msg.photo:
-#                     return
-#             except Exception as e:
-#                 await msg.answer("Неверный формат")
-#                 return
-#             ltc_sum = await convert_usdt_to_ltc(usdt)
-#             ltc_sum = round(ltc_sum, 8)
-#             total_usdt = await convert_ltc_to_usdt(ltc_sum, count=0)
-#             await coms(msg, total_usdt, ltc_sum, user)
-#             await state.clear()
-#     except Exception as e:
-#         await msg.answer("Проверьте правильность набора")
-#         print(f"async def waiting_ltc, @router.business_message(Form.wфше)", e)
-#
-#
 
 
 @router.business_message(IsUSDT())
@@ -146,6 +114,7 @@ async def ticket(msg: Message, bot: Bot):
         text = f"[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
         await msg.answer(text, parse_mode="Markdown")
 
+
 @router.business_message()
 async def controll(msg: Message, bot: Bot):
     # await msg.answer("Уважаемый клиент!\n\n\nПроизошел небольшой сбой на этом аккаунте\n\nМы временно перешли на другой аккаунт, прошу обратиться по юзеру @DINO_OBMENNIK")
@@ -191,7 +160,7 @@ async def finish_roul(msg: Message, state: FSMContext, command: CommandObject, b
             response = "[🎊](https://telegra.ph/file/09cbf544d43e49bba72d1.mp4) Победители розыгрыша::\n\n"
             count = 1
             for user in top_prizers:
-                response += f"{count}. {'@'+user.username if user.username else user.user_id}: `{user.ticket_count}` билетов\n"
+                response += f"{count}. `{'@'+user.username if user.username else user.user_id}`: `{user.ticket_count}` билетов\n"
                 count += 1
                 tickets = await sync_to_async(Ticket.objects.filter)(user=user)
                 await sync_to_async(tickets.delete)()
@@ -200,6 +169,28 @@ async def finish_roul(msg: Message, state: FSMContext, command: CommandObject, b
             await msg.answer("Нет призеров с активированными билетами.")
 
 
+@router.message(Command("top"))
+async def show_top(msg: Message, state: FSMContext, command: CommandObject, bot: Bot):
+    args = command.args
+    if args and args.isdigit():
+        num_prizers = int(args)
+    else:
+        return
+    top_prizers = await sync_to_async(lambda:
+                                      TelegramUser.objects
+                                      .annotate(ticket_count=Count('ticket', filter=models.Q(ticket__activated=True)))
+                                      .order_by('-ticket_count')
+                                      .filter(ticket_count__gt=0)[:num_prizers]
+                                      )()
+
+    if top_prizers:
+        response = "[🎊](https://telegra.ph/file/09cbf544d43e49bba72d1.mp4) Победители розыгрыша::\n\n"
+        count = 1
+        for user in top_prizers:
+            response += f"{count}. `{'@' + user.username if user.username else user.user_id}`: `{user.ticket_count}` билетов\n"
+            count += 1
+            tickets = await sync_to_async(Ticket.objects.filter)(user=user)
+        await msg.answer(response, parse_mode="Markdown")
 
 
 
