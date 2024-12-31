@@ -187,7 +187,7 @@ async def show_top(msg: Message, state: FSMContext, command: CommandObject, bot:
         response = "[🎊](https://telegra.ph/file/09cbf544d43e49bba72d1.mp4) Победители розыгрыша::\n\n"
         count = 1
         for user in top_prizers:
-            response += f"{count}. `{'@' + user.username if user.username else user.user_id}`: `{user.ticket_count}` билетов\n"
+            response += f"{count}. tg://user?id={user.user_id}: `{user.ticket_count}` билетов\n"
             count += 1
             tickets = await sync_to_async(Ticket.objects.filter)(user=user)
         await msg.answer(response, parse_mode="Markdown")
