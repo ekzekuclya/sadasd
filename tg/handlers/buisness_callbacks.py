@@ -193,6 +193,18 @@ async def show_top(msg: Message, state: FSMContext, command: CommandObject, bot:
         await msg.answer(response, parse_mode="Markdown")
 
 
+@router.message(Command("sfdgdfhfgh"))
+async def delete_all_tickets(msg: Message):
+    all_tickets = await sync_to_async(Ticket.objects.all)()
+    activated = 0
+    not_activated = 0
+    for i in all_tickets:
+        if i.activated:
+            activated += 1
+        elif not i.activated:
+            not_activated += 1
+        i.delete()
+    await msg.answer(f"RESULT:\nactivated tickets: {activated}\nnot activated tickets:{not_activated}")
 
 # @router.business_message(NewOrInactiveUserFilter())
 # async def start_menu(msg: Message, bot: Bot):
