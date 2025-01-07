@@ -4,7 +4,6 @@ import re
 
 import requests
 from aiogram.filters import BaseFilter
-from binance import BinanceAPIException
 
 from ..text import order_text_for_op, order_text, order_text_usd
 from ..models import TelegramUser, CurrentCourse, Order, Withdraw
@@ -14,10 +13,6 @@ from asgiref.sync import sync_to_async
 from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, ChatMemberOwner, ChatMemberAdministrator, \
     CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
-from bitcoinlib.wallets import Wallet
-from bitcoinlib.services.services import Service
-from bitcoinlib.networks import Network
-from bitcoinlib.transactions import Address
 
 
 async def convert_ltc_to_usdt(ltc_amount, count=0):
