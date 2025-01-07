@@ -57,6 +57,7 @@ async def send_ltc(client, amount, to_address, network='LTC'):
         ltc_balance = next((float(asset['free']) for asset in account_info['balances'] if asset['asset'] == 'LTC'), 0)
         if ltc_balance < amount:
             return
+        print("PRE OTPR", amount)
         withdrawal = await client.withdraw(
             coin='LTC',
             amount=amount,
@@ -71,7 +72,7 @@ async def send_ltc(client, amount, to_address, network='LTC'):
 async def txid_checker(msg, wit_id):
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
-    mins = 500
+    mins = 0
     txId = None
     while True:
         print("IN WHILE TRUE")
