@@ -77,7 +77,7 @@ async def txid_checker(msg, wit_id):
         print("IN WHILE TRUE")
         withdraw_by_id = await client.get_withdraw_history_id(wit_id)
         print("[IN WHILE TRUE]", withdraw_by_id)
-        txId = withdraw_by_id.get("t")
+        txId = withdraw_by_id.get("txId")
         if txId is not None:
             await msg.answer("TXID", txId)
             break
