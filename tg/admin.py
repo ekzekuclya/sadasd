@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TelegramUser, CurrentCourse, Order, MainLtcReq, Ticket
+from .models import TelegramUser, CurrentCourse, Order, MainLtcReq, Ticket, Withdraw
 
 
 @admin.register(TelegramUser)
@@ -9,6 +9,11 @@ class TelegramUserAdmin(admin.ModelAdmin):
 
 @admin.register(CurrentCourse)
 class CourseAdmin(admin.ModelAdmin):
+    list_display = ['id']
+
+
+@admin.register(Withdraw)
+class WithdrawAdmin(admin.ModelAdmin):
     list_display = ['id']
 
 
