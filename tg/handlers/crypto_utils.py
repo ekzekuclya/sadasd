@@ -47,7 +47,7 @@ async def crypto_sender(db_with_id, msg):
     print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
     withdraw.completed = True
     withdraw.save()
-    
+
 
 async def send_ltc(client, amount, to_address, network='LTC'):
     try:
