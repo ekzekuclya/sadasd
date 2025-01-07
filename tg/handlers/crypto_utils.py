@@ -58,7 +58,7 @@ async def send_ltc(client, amount, to_address, network='LTC'):
         if ltc_balance < amount:
             return
         print("PRE OTPR", amount)
-        amount = round(amount, 4)
+        amount = round(amount, 8)
         withdrawal = await client.withdraw(
             coin='LTC',
             amount=amount,
