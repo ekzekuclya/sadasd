@@ -3,7 +3,7 @@ import math
 import decimal
 from binance.async_client import AsyncClient, BinanceAPIException
 import re
-from ..models import Withdraw, Client
+from ..models import Withdraw, Client, Ticket
 from asgiref.sync import sync_to_async
 from binance.async_client import AsyncClient
 
@@ -37,7 +37,7 @@ async def convert_usdt_to_ltc(client, target_ltc_amount):
 
 
 
-async def crypto_sender(wth_id):
+async def crypto_sender(wth_id, msg, bot):
     db_c = await sync_to_async(Client.objects.first)()
     withdraw = await sync_to_async(Withdraw.objects.get)(id=wth_id)
     client = await AsyncClient.create(db_c.key, db_c.secret)
@@ -45,7 +45,16 @@ async def crypto_sender(wth_id):
     result_withdraw = await send_ltc(client, withdraw.amount, withdraw.req)
     withdraw.completed = True
     withdraw.save()
-
+    if result_withdraw:
+        print(result_withdraw)
+        id_value = result_withdraw['id']
+        await msg.answer(f"TXII {id_value}")
+        bot_user = await bot.get_me()
+        user_bot = bot_user.username
+        ticket = await sync_to_async(Ticket.objects.create)()
+        url = f"http://t.me/{user_bot}?start={ticket.ticket}"
+        text = f"[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
+        await msg.answer(text, parse_mode="Markdown")
 
 async def send_ltc(client, amount, to_address, network='LTC'):
     try:
@@ -61,7 +70,7 @@ async def send_ltc(client, amount, to_address, network='LTC'):
             address=to_address,
         )
         print(f"Перевод {amount} LTC успешно отправлен на адрес {to_address}. Ответ: {withdrawal}")
-
+        return withdrawal
     except Exception as e:
         print(f"Произошла ошибка при отправке LTC: {e}")
     finally:
