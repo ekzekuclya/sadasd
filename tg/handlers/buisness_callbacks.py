@@ -224,8 +224,7 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
             withdraw_id = data[1]
             withdraw = await sync_to_async(Withdraw.objects.get)(id=withdraw_id)
             if not withdraw.completed:
-                wit_id = await crypto_sender(withdraw_id, callback_query.message)
-                print("CALLBACK RESULT", wit_id)
+                await crypto_sender(withdraw_id, callback_query.message)
                 # await asyncio.create_task(txid_checker(wit_id, callback_query.message))
                 await callback_query.answer("ЗАВЕРШЕНО")
             elif withdraw.completed:

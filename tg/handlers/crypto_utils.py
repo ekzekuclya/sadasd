@@ -47,7 +47,7 @@ async def crypto_sender(db_with_id, msg):
     print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
     withdraw.completed = True
     withdraw.save()
-
+    await client.close_connection()
 
 async def send_ltc(client, amount, to_address, network='LTC'):
     try:
@@ -68,9 +68,9 @@ async def send_ltc(client, amount, to_address, network='LTC'):
         print(f"Произошла ошибка при отправке LTC: {e}")
 
 
-async def txid_checker(client, msg, wit_id):
-    # db_c = await sync_to_async(Client.objects.first)()
-    # client = await AsyncClient.create(db_c.key, db_c.secret)
+async def txid_checker(msg, wit_id):
+    db_c = await sync_to_async(Client.objects.first)()
+    client = await AsyncClient.create(db_c.key, db_c.secret)
     mins = 500
     txId = None
     while True:
