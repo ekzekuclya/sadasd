@@ -46,6 +46,7 @@ async def crypto_sender(wth_id):
     withdraw.save()
     withdraw_by_id = await client.get_withdraw_history_id(result_withdraw.get("id"))
     print("WITHDRAW BY ID", withdraw_by_id)
+    await client.close_connection()
     return result_withdraw
 
 async def send_ltc(client, amount, to_address, network='LTC'):
@@ -65,6 +66,5 @@ async def send_ltc(client, amount, to_address, network='LTC'):
         return withdrawal
     except Exception as e:
         print(f"Произошла ошибка при отправке LTC: {e}")
-    finally:
-        await client.close_connection()
+
 
