@@ -38,18 +38,16 @@ async def reposted_usd(msg: Message, bot: Bot):
             user.save()
         text = msg.text.strip()
         amount = int(text[:-1])
+        await comsusdt(msg, amount, user)
         withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
         if withdrawals:
             for i in withdrawals:
                 i.active = False
                 i.save()
-            new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
-                                                                          symbol="USDT")
+            new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount, symbol="USDT")
         else:
             new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
                                                                           symbol="USDT")
-        await comsusdt(msg, amount, user)
-
     except Exception as e:
         print(f"reposted_usd", e)
 
@@ -66,6 +64,7 @@ async def reposted_ltc(msg: Message, bot: Bot):
             user.save()
         ltc_sum = msg.text.replace(",", ".")
         total_usdt = await convert_ltc_to_usdt(ltc_sum, count=0)
+        await coms(msg, total_usdt, ltc_sum, user)
         withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
         if withdrawals:
             for i in withdrawals:
@@ -76,7 +75,6 @@ async def reposted_ltc(msg: Message, bot: Bot):
         else:
             new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=ltc_sum,
                                                                           symbol="LTC")
-        await coms(msg, total_usdt, ltc_sum, user)
     except Exception as e:
         print(f"reposted_ltc", e)
 chat = "-1002279880306"
