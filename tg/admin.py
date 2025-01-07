@@ -1,10 +1,15 @@
 from django.contrib import admin
-from .models import TelegramUser, CurrentCourse, Order, MainLtcReq, Ticket, Withdraw
+from .models import TelegramUser, CurrentCourse, Order, MainLtcReq, Ticket, Withdraw, Client
 
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ['id', 'username' if 'username' else 'None']
+
+
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ['id']
 
 
 @admin.register(CurrentCourse)

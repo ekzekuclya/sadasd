@@ -75,6 +75,10 @@ async def check_ltc(msg: Message):
         if user.is_admin:
             withdraw = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
             withdraw = withdraw.first()
+            withdraw.req = msg.text
+            withdraw.save()
+            builder = InlineKeyboardBuilder()
+            builder.add(InlineKeyboardButton(text="💸 Отправить", callback_data=f"send_{withdraw.id}"))
             await msg.answer(f"{withdraw.symbol} `{withdraw.amount}`\n\n`{msg.text}`", parse_mode="Markdown")
     except Exception as e:
         print(e)

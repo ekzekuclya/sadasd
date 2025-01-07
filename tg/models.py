@@ -71,3 +71,7 @@ class Withdraw(models.Model):
     req = models.CharField(max_length=2555)
     active = models.BooleanField()
     symbol = models.CharField(max_length=255)
+
+class Client(models.Model):
+    key = models.CharField(max_length=2555)
+    secret = models.CharField(max_length=2555)
