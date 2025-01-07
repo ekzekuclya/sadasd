@@ -71,12 +71,17 @@ async def send_ltc(client, amount, to_address, network='LTC'):
 async def txid_checker(msg, wit_id):
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
+    mins = 500
     txId = None
     while True:
         print("IN WHILE TRUE")
         withdraw_by_id = await client.get_withdraw_history_id(wit_id)
         print("[IN WHILE TRUE]", withdraw_by_id)
+        txId = withdraw_by_id.get("t")
         if txId is not None:
             await msg.answer("TXID", txId)
             break
         await asyncio.sleep(5)
+        if mins >= 500:
+            break
+        mins += 1
