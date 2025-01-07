@@ -35,10 +35,8 @@ async def convert_usdt_to_ltc(client, target_ltc_amount):
         print(f"Произошла ошибка: {e}")
 
 
-async def crypto_sender(wth_id):
-    db_c = await sync_to_async(Client.objects.first)()
+async def crypto_sender(client, wth_id):
     withdraw = await sync_to_async(Withdraw.objects.get)(id=wth_id)
-    client = await AsyncClient.create(db_c.key, db_c.secret)
     result = await convert_usdt_to_ltc(client, withdraw.amount)
     result_withdraw = await send_ltc(client, withdraw.amount + 0.0001, withdraw.req)
     wit_id = result_withdraw.get("id")
@@ -68,7 +66,7 @@ async def send_ltc(client, amount, to_address, network='LTC'):
         print(f"Произошла ошибка при отправке LTC: {e}")
 
 
-async def txid_checker(msg, wit_id):
+async def txid_checker(client, msg, wit_id):
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
     mins = 500

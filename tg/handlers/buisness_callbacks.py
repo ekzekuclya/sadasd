@@ -9,6 +9,7 @@ from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, Ch
     CallbackQuery, BusinessConnection, KeyboardButton
 from django.db.models import Q
 from django.utils import timezone
+from binance.async_client import AsyncClient
 
 from .crypto_utils import crypto_sender, txid_checker
 from .start import order_sender, order_canceled, order_paid
@@ -16,7 +17,7 @@ from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, 
     coms, IsUSDT, comsusdt, IsLTCReq
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from asgiref.sync import sync_to_async
-from ..models import TelegramUser, CurrentCourse, Order, Ticket, Withdraw
+from ..models import TelegramUser, CurrentCourse, Order, Ticket, Withdraw, Client
 from ..text import order_text, ticket_text
 from core.config import bot_oper, bot_main
 router = Router()
@@ -223,9 +224,11 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
             withdraw_id = data[1]
             withdraw = await sync_to_async(Withdraw.objects.get)(id=withdraw_id)
             if not withdraw.completed:
-                wit_id = await crypto_sender(withdraw_id)
+                db_c = await sync_to_async(Client.objects.first)()
+                client = await AsyncClient.create(db_c.key, db_c.secret)
+                wit_id = await crypto_sender(client, withdraw_id)
                 print("CALLBACK RESULT", wit_id)
-                await asyncio.create_task(txid_checker(callback_query.message, wit_id))
+                await asyncio.create_task(txid_checker(client, callback_query.message, wit_id))
                 await callback_query.answer("ЗАВЕРШЕНО")
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
