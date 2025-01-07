@@ -223,7 +223,7 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
             withdraw_id = data[1]
             withdraw = await sync_to_async(Withdraw.objects.get)(id=withdraw_id)
             if not withdraw.completed:
-                await crypto_sender(withdraw_id, callback_query.message, bot)
+                await crypto_sender(withdraw_id)
                 await callback_query.answer("ЗАВЕРШЕНО")
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
