@@ -91,14 +91,14 @@ class IsFloatFilter(BaseFilter):
                 try:
                     amount = float(text)
                     withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=message.chat.id, active=True)
-                    if withdrawals:
+                    if withdrawals.exists():
                         for i in withdrawals:
                             i.active = False
                             i.save()
                         new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
                                                                                       amount=amount,
                                                                                       symbol="LTC", active=True)
-                    else:
+                    elif not withdrawals:
                         new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
                                                                                       amount=amount,
                                                                                       symbol="LTC", active=True)
