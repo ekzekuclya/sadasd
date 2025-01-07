@@ -35,16 +35,17 @@ async def convert_usdt_to_ltc(client, target_ltc_amount):
         print(f"Произошла ошибка: {e}")
 
 
-
-
 async def crypto_sender(wth_id):
     db_c = await sync_to_async(Client.objects.first)()
     withdraw = await sync_to_async(Withdraw.objects.get)(id=wth_id)
     client = await AsyncClient.create(db_c.key, db_c.secret)
     result = await convert_usdt_to_ltc(client, withdraw.amount)
     result_withdraw = await send_ltc(client, withdraw.amount + 0.0001, withdraw.req)
+    print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
     withdraw.completed = True
     withdraw.save()
+    withdraw_by_id = await client.get_withdraw_history_id(result_withdraw.get("id"))
+    print("WITHDRAW BY ID", withdraw_by_id)
     return result_withdraw
 
 async def send_ltc(client, amount, to_address, network='LTC'):
