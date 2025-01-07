@@ -227,6 +227,7 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
                 await crypto_sender(withdraw_id, callback_query.message)
                 # await asyncio.create_task(txid_checker(wit_id, callback_query.message))
                 await callback_query.answer("ЗАВЕРШЕНО")
+                await callback_query.message.answer("♻️ _Крипта уже отправлена, ожидайте выхода в сеть_", parse_mode="Markdown")
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
 #         text = "Сделайте выбор:"
