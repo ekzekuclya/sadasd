@@ -39,18 +39,20 @@ async def reposted_usd(msg: Message, bot: Bot):
         text = msg.text.strip()
         amount = int(text[:-1])
         await comsusdt(msg, amount, user)
-        withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
-        if withdrawals.exists():
-            for i in withdrawals:
-                i.active = False
-                i.save()
-            new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
-                                                                          symbol="USDT")
-        else:
-            new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
-                                                                          symbol="USDT")
+        # withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
+        # if withdrawals.exists():
+        #     for i in withdrawals:
+        #         i.active = False
+        #         i.save()
+        #     new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
+        #                                                                   symbol="USDT")
+        # elif not withdrawals:
+        #     new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
+        #                                                                   symbol="USDT")
     except Exception as e:
         print(f"reposted_usd", e)
+
+
 
 
 @router.business_message(IsFloatFilter())

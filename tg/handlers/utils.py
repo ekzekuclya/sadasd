@@ -3,7 +3,7 @@ import asyncio
 import requests
 from aiogram.filters import BaseFilter
 from ..text import order_text_for_op, order_text, order_text_usd
-from ..models import TelegramUser, CurrentCourse, Order
+from ..models import TelegramUser, CurrentCourse, Order, Withdraw
 from datetime import datetime, timedelta
 from django.utils import timezone
 from asgiref.sync import sync_to_async
@@ -60,6 +60,18 @@ class IsUSDT(BaseFilter):
                 amount = text[:-1]
                 try:
                     int(amount)
+                    withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=message.chat.id, active=True)
+                    if withdrawals.exists():
+                        for i in withdrawals:
+                            i.active = False
+                            i.save()
+                        new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
+                                                                                      amount=amount,
+                                                                                      symbol="USDT")
+                    elif not withdrawals:
+                        new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
+                                                                                      amount=amount,
+                                                                                      symbol="USDT")
                     return True
                 except ValueError:
                     return False
