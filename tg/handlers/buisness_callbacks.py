@@ -134,23 +134,23 @@ async def ticket(msg: Message, bot: Bot):
         await msg.answer(text, parse_mode="Markdown")
 
 
-@router.business_message()
-async def controll(msg: Message, bot: Bot):
-    # await msg.answer("Уважаемый клиент!\n\n\nПроизошел небольшой сбой на этом аккаунте\n\nМы временно перешли на другой аккаунт, прошу обратиться по юзеру @DINO_OBMENNIK")
-    if msg.photo:
-        photo_id = msg.photo[-1].file_id
-        if msg.text:
-            await bot.send_photo(chat_id=chat, photo=photo_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
-        else:
-            await bot.send_photo(chat_id=chat, photo=photo_id, caption=f"{await get_profile_link(msg.from_user.id)}")
-    elif msg.document:
-        file_id = msg.document.file_id
-        if msg.text:
-            await bot.send_document(chat_id=chat, document=file_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
-        else:
-            await bot.send_document(chat_id=chat, document=file_id, caption=f"{await get_profile_link(msg.from_user.id)}")
-    else:
-        await bot.send_message(chat_id=chat, text=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
+# @router.business_message()
+# async def controll(msg: Message, bot: Bot):
+#     # await msg.answer("Уважаемый клиент!\n\n\nПроизошел небольшой сбой на этом аккаунте\n\nМы временно перешли на другой аккаунт, прошу обратиться по юзеру @DINO_OBMENNIK")
+#     if msg.photo:
+#         photo_id = msg.photo[-1].file_id
+#         if msg.text:
+#             await bot.send_photo(chat_id=chat, photo=photo_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
+#         else:
+#             await bot.send_photo(chat_id=chat, photo=photo_id, caption=f"{await get_profile_link(msg.from_user.id)}")
+#     elif msg.document:
+#         file_id = msg.document.file_id
+#         if msg.text:
+#             await bot.send_document(chat_id=chat, document=file_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
+#         else:
+#             await bot.send_document(chat_id=chat, document=file_id, caption=f"{await get_profile_link(msg.from_user.id)}")
+#     else:
+#         await bot.send_message(chat_id=chat, text=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
 
 
 @router.message(Command("roulette"))
