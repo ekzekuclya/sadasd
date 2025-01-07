@@ -45,7 +45,7 @@ async def crypto_sender(wth_id):
     result_withdraw = await send_ltc(client, withdraw.amount + 0.0001, withdraw.req)
     withdraw.completed = True
     withdraw.save()
-    print(result_withdraw)
+    return result_withdraw
 
 async def send_ltc(client, amount, to_address, network='LTC'):
     try:
