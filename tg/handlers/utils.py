@@ -96,11 +96,11 @@ class IsFloatFilter(BaseFilter):
                             i.save()
                         new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
                                                                                       amount=amount,
-                                                                                      symbol="LTC")
+                                                                                      symbol="LTC", active=True)
                     else:
                         new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
                                                                                       amount=amount,
-                                                                                      symbol="LTC")
+                                                                                      symbol="LTC", active=True)
                     return True
                 except ValueError:
                     return False
