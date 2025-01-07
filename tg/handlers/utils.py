@@ -67,11 +67,11 @@ class IsUSDT(BaseFilter):
                             i.save()
                         new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
                                                                                       amount=amount,
-                                                                                      symbol="USDT")
+                                                                                      symbol="USDT", active=True)
                     elif not withdrawals:
                         new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
                                                                                       amount=amount,
-                                                                                      symbol="USDT")
+                                                                                      symbol="USDT", active=True)
                     return True
                 except ValueError:
                     return False
