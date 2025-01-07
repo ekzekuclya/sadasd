@@ -69,8 +69,8 @@ async def send_ltc(client, amount, to_address, network='LTC'):
 
 
 async def txid_checker(client, msg, wit_id):
-    db_c = await sync_to_async(Client.objects.first)()
-    client = await AsyncClient.create(db_c.key, db_c.secret)
+    # db_c = await sync_to_async(Client.objects.first)()
+    # client = await AsyncClient.create(db_c.key, db_c.secret)
     mins = 500
     txId = None
     while True:
