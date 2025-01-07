@@ -1,4 +1,5 @@
 import asyncio
+import re
 
 import requests
 from aiogram.filters import BaseFilter
@@ -101,6 +102,30 @@ class IsFloatFilter(BaseFilter):
                 except ValueError:
                     return False
         return False
+
+
+class IsLTCReq(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        # Регулярное выражение для проверки формата адреса LTC
+        pattern = r'^[LM3][A-Za-z0-9]{26,33}$'
+
+        # Проверяем, соответствует ли текст адресу LTC
+        if re.match(pattern, message.text):
+            return await self.check_ltc_validity(message.text)
+        return False
+
+    async def check_ltc_validity(self, address: str) -> bool:
+        url = f'https://api.blockchair.com/ltc/dashboards/address/{address}'
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+            if 'data' in data and address in data['data']:
+                return True
+            return False
+        except requests.exceptions.RequestException:
+            return False
 
 
 async def convert_kgs_to_ltc(msg, kgs_amount):

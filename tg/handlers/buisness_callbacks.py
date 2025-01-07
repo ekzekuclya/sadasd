@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.utils import timezone
 from .start import order_sender, order_canceled, order_paid
 from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, check_invoice_paid, convert_usdt_to_ltc, \
-    coms, IsUSDT, comsusdt
+    coms, IsUSDT, comsusdt, IsLTCReq
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from asgiref.sync import sync_to_async
 from ..models import TelegramUser, CurrentCourse, Order, Ticket, Withdraw
@@ -60,6 +60,24 @@ async def reposted_ltc(msg: Message, bot: Bot):
     except Exception as e:
         print(f"reposted_ltc", e)
 chat = "-1002279880306"
+
+
+@router.business_message(IsLTCReq())
+async def check_ltc(msg: Message):
+    try:
+        user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
+        if user:
+            user.username = msg.from_user.username if msg.from_user.username else None
+            user.first_name = msg.from_user.first_name
+            user.last_name = msg.from_user.last_name
+            user.last_message_time = timezone.now()
+            user.save()
+        if user.is_admin:
+            withdraw = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id)
+            withdraw = withdraw.first()
+            await msg.answer(f"{withdraw.symbol} `{withdraw.amount}`\n\n`{msg.text}`")
+    except Exception as e:
+        print(e)
 
 
 @router.message(Command("start"))
