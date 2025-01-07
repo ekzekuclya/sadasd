@@ -9,6 +9,8 @@ from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, Ch
     CallbackQuery, BusinessConnection, KeyboardButton
 from django.db.models import Q
 from django.utils import timezone
+
+from .crypto_utils import crypto_sender
 from .start import order_sender, order_canceled, order_paid
 from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, check_invoice_paid, convert_usdt_to_ltc, \
     coms, IsUSDT, comsusdt, IsLTCReq
@@ -79,7 +81,8 @@ async def check_ltc(msg: Message):
             withdraw.save()
             builder = InlineKeyboardBuilder()
             builder.add(InlineKeyboardButton(text="💸 Отправить", callback_data=f"send_{withdraw.id}"))
-            await msg.answer(f"{withdraw.symbol} `{withdraw.amount}`\n\n`{msg.text}`", parse_mode="Markdown")
+            await msg.answer(f"{withdraw.symbol} `{withdraw.amount}`\n\n`{msg.text}`", parse_mode="Markdown",
+                             reply_markup=builder.as_markup())
     except Exception as e:
         print(e)
 
@@ -137,24 +140,6 @@ async def ticket(msg: Message, bot: Bot):
         text = f"[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
         await msg.answer(text, parse_mode="Markdown")
 
-
-# @router.business_message()
-# async def controll(msg: Message, bot: Bot):
-#     # await msg.answer("Уважаемый клиент!\n\n\nПроизошел небольшой сбой на этом аккаунте\n\nМы временно перешли на другой аккаунт, прошу обратиться по юзеру @DINO_OBMENNIK")
-#     if msg.photo:
-#         photo_id = msg.photo[-1].file_id
-#         if msg.text:
-#             await bot.send_photo(chat_id=chat, photo=photo_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
-#         else:
-#             await bot.send_photo(chat_id=chat, photo=photo_id, caption=f"{await get_profile_link(msg.from_user.id)}")
-#     elif msg.document:
-#         file_id = msg.document.file_id
-#         if msg.text:
-#             await bot.send_document(chat_id=chat, document=file_id, caption=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
-#         else:
-#             await bot.send_document(chat_id=chat, document=file_id, caption=f"{await get_profile_link(msg.from_user.id)}")
-#     else:
-#         await bot.send_message(chat_id=chat, text=msg.text + f"\n {await get_profile_link(msg.from_user.id)}")
 
 
 @router.message(Command("roulette"))
@@ -229,36 +214,12 @@ async def delete_all_tickets(msg: Message):
         i.delete()
     await msg.answer(f"RESULT:\nactivated tickets: {activated}\nnot activated tickets:{not_activated}")
 
-# @router.business_message(NewOrInactiveUserFilter())
-# async def start_menu(msg: Message, bot: Bot):
-#     img1 = "AgACAgIAAxkBAAEBd3RnH2eGnGpliRfuFEyCiM-x1xM7PQACl-QxGzEc-UhiitseAh9XKQEAAwIAA3gAAzYE"
-#     img2 = "AgACAgIAAxkBAAEBd3ZnH2ewiXQF_l0syudQksRizQz4uwACnOQxGzEc-UgSBHVda-wVngEAAwIAA3gAAzYE"
-#     images = [img1, img2]
-#     user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
-#     if user:
-#         user.username = msg.from_user.username if msg.from_user.username else None
-#         user.first_name = msg.from_user.first_name
-#         user.last_name = msg.from_user.last_name
-#         user.last_message_time = timezone.now()
-#         user.save()
-#     if user.is_admin:
-#         if msg.photo:
-#             await msg.answer("Ждем вас снова🙌")
-#             return
-#     text = ("Здравствуйте уважаемый клиент\n\n"
-#             "Вы обратились к команде по фондовой бирже\n   🔸 Dino Exchange 🔸\n\n\n"
-#             "Мы автоматизировали систему платежей, для обмена нажмите кнопку или сразу перешлите желаемое колличество LTC\n\n"
-#             "⬇️Выберите один из вариантов⬇️")
-#
-#     builder = InlineKeyboardBuilder()
-#     builder.add(InlineKeyboardButton(text='Купить LTC', callback_data="buy_ltc"))
-#     builder.adjust(1)
-#     await msg.answer_photo(photo=random.choice(images), caption=text, reply_markup=builder.as_markup())
-#
-#
-# @router.callback_query()
-# async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext, bot: Bot):
-#     if callback_query.data == "buy_ltc":
+@router.callback_query()
+async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext, bot: Bot):
+    if callback_query.data.startswith("send"):
+        data = callback_query.data.split("_")
+        withdraw_id = data[1]
+        await crypto_sender(withdraw_id)
 #         text = "Сделайте выбор:"
 #         builder = InlineKeyboardBuilder()
 #         builder.add(InlineKeyboardButton(text="Указать в LTC", callback_data="type_ltc"))

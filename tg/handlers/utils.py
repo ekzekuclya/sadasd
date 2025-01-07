@@ -1,8 +1,11 @@
 import asyncio
+import math
 import re
 
 import requests
 from aiogram.filters import BaseFilter
+from binance import BinanceAPIException
+
 from ..text import order_text_for_op, order_text, order_text_usd
 from ..models import TelegramUser, CurrentCourse, Order, Withdraw
 from datetime import datetime, timedelta
@@ -282,7 +285,7 @@ async def convert_usdt_to_ltc(usdt_amount):
         return None
 
 
-async def get_balance(asset):
+async def get_balance(asset, client):
     try:
 
         balance = client.get_asset_balance(asset=asset)
@@ -292,7 +295,7 @@ async def get_balance(asset):
         return 0.0
 
 
-async def get_lot_size(symbol):
+async def get_lot_size(symbol, client):
     """Получить параметры LOT_SIZE для символа."""
     try:
         exchange_info = client.get_symbol_info(symbol)
@@ -306,124 +309,117 @@ async def get_lot_size(symbol):
     except BinanceAPIException as e:
         print(f"Ошибка получения LOT_SIZE: {e}")
         return None
-#
-#
-# def adjust_quantity(qty, step_size):
-#     """Округлить количество до шага stepSize."""
-#     return math.floor(qty / step_size) * step_size
-#
-#
-# def check_decimals(symbol):
-#     """Проверить количество десятичных знаков для символа."""
-#     info = client.get_symbol_info(symbol)
-#     decimal = 0
-#
-#     # Ищем фильтр 'LOT_SIZE', который содержит stepSize
-#     for filt in info['filters']:
-#         if filt['filterType'] == 'LOT_SIZE':
-#             step_size = filt['stepSize']
-#             # Определяем количество знаков после запятой
-#             is_dec = False
-#             for c in step_size:
-#                 if is_dec:
-#                     decimal += 1
-#                 if c == '1':
-#                     break
-#                 if c == '.':
-#                     is_dec = True
-#             return decimal
-#     print("Не найден фильтр LOT_SIZE.")
-#     return 0  # Если фильтр не найден, возвращаем 0 (можно изменить на ошибку)
-#
-#
-#
-# def get_notional_filter(symbol):
-#     """Получить параметры фильтра NOTIONAL для символа."""
-#     try:
-#         exchange_info = client.get_symbol_info(symbol)
-#         for filt in exchange_info['filters']:
-#             if filt['filterType'] == 'NOTIONAL':
-#                 return {
-#                     'minNotional': float(filt['minNotional']),
-#                     'maxNotional': float(filt['maxNotional']),
-#                 }
-#     except BinanceAPIException as e:
-#         print(f"Ошибка получения NOTIONAL: {e}")
-#         return None
-#
-# def buy_ltc_with_usdt(amount_ltc):
-#     """Купить определённое количество LTC за USDT."""
-#     symbol = 'LTCUSDT'
-#     try:
-#         # Получение текущей цены
-#         ticker = client.get_ticker(symbol=symbol)
-#         price = float(ticker['lastPrice'])
-#         print(f"Текущая цена {symbol}: {price} USDT")
-#
-#         # Проверка LOT_SIZE
-#         lot_size = get_lot_size(symbol)
-#         if not lot_size:
-#             return
-#
-#         # Проверка минимального количества
-#         min_qty = lot_size['minQty']
-#         if amount_ltc < min_qty:
-#             print(f"Минимальное количество для покупки {symbol} — {min_qty}. Ваш запрос: {amount_ltc}")
-#             return
-#
-#         # Определяем количество десятичных знаков
-#         decimal = check_decimals(symbol)
-#         adjusted_qty = round(amount_ltc, decimal)
-#         print(f"Скорректированное количество LTC: {adjusted_qty}")
-#
-#         # Проверка баланса USDT
-#         balance_usdt = float(client.get_asset_balance(asset='USDT')['free'])
-#         cost = adjusted_qty * price
-#
-#         if cost > balance_usdt:
-#             print(f"Недостаточно USDT: нужно {cost}, доступно {balance_usdt}")
-#             return
-#
-#         # Проверка NOTIONAL
-#         notional_filter = get_notional_filter(symbol)
-#         if not notional_filter:
-#             return
-#
-#         # Убедимся, что стоимость ордера лежит в допустимом диапазоне
-#         if cost < notional_filter['minNotional']:
-#             print(f"Стоимость ордера слишком мала: нужно минимум {notional_filter['minNotional']} USDT.")
-#             return
-#         if cost > notional_filter['maxNotional']:
-#             print(f"Стоимость ордера слишком велика: максимальный размер {notional_filter['maxNotional']} USDT.")
-#             return
-#
-#         # Размещение ордера
-#         order = client.order_market_buy(
-#             symbol=symbol,
-#             quantity=adjusted_qty
-#         )
-#         print(f"Успешно куплено {adjusted_qty} LTC за {cost} USDT.")
-#         return order
-#
-#     except BinanceAPIException as e:
-#         print(f"Ошибка при покупке: {e}")
-#         return None
-#
-#
-#
-#
-#
-# def withdraw(asset, address, amount, network=None):
-#     """Вывод средств на внешний адрес."""
-#     try:
-#         result = client.withdraw(
-#             coin=asset,
-#             address=address,
-#             amount=amount,
-#             network=network
-#         )
-#         print(f"Вывод успешно выполнен: {result}")
-#         return result
-#     except BinanceAPIException as e:
-#         print(f"Ошибка вывода: {e}")
-#         return None
+
+
+
+async def adjust_quantity(qty, step_size):
+    return math.floor(qty / step_size) * step_size
+
+
+async def check_decimals(symbol, client):
+    info = await client.get_symbol_info(symbol)
+    decimal = 0
+    for filt in info['filters']:
+        if filt['filterType'] == 'LOT_SIZE':
+            step_size = filt['stepSize']
+            is_dec = False
+            for c in step_size:
+                if is_dec:
+                    decimal += 1
+                if c == '1':
+                    break
+                if c == '.':
+                    is_dec = True
+            return decimal
+    return 0
+
+
+
+async def get_notional_filter(symbol, client):
+    try:
+        exchange_info = client.get_symbol_info(symbol)
+        for filt in exchange_info['filters']:
+            if filt['filterType'] == 'NOTIONAL':
+                return {
+                    'minNotional': float(filt['minNotional']),
+                    'maxNotional': float(filt['maxNotional']),
+                }
+    except BinanceAPIException as e:
+        print(f"Ошибка получения NOTIONAL: {e}")
+        return None
+
+async def buy_ltc_with_usdt(amount_ltc, client):
+    symbol = 'LTCUSDT'
+    try:
+        # Получение текущей цены
+        ticker = client.get_ticker(symbol=symbol)
+        price = float(ticker['lastPrice'])
+        print(f"Текущая цена {symbol}: {price} USDT")
+
+        # Проверка LOT_SIZE
+        lot_size = await get_lot_size(symbol, client)
+        if not lot_size:
+            return
+
+        # Проверка минимального количества
+        min_qty = lot_size['minQty']
+        if amount_ltc < min_qty:
+            print(f"Минимальное количество для покупки {symbol} — {min_qty}. Ваш запрос: {amount_ltc}")
+            return
+
+        # Определяем количество десятичных знаков
+        decimal = check_decimals(symbol, client)
+        adjusted_qty = round(amount_ltc, decimal)
+        print(f"Скорректированное количество LTC: {adjusted_qty}")
+
+        # Проверка баланса USDT
+        balance_usdt = float(client.get_asset_balance(asset='USDT')['free'])
+        cost = adjusted_qty * price
+
+        if cost > balance_usdt:
+            print(f"Недостаточно USDT: нужно {cost}, доступно {balance_usdt}")
+            return
+
+        # Проверка NOTIONAL
+        notional_filter = get_notional_filter(symbol)
+        if not notional_filter:
+            return
+
+        # Убедимся, что стоимость ордера лежит в допустимом диапазоне
+        if cost < notional_filter['minNotional']:
+            print(f"Стоимость ордера слишком мала: нужно минимум {notional_filter['minNotional']} USDT.")
+            return
+        if cost > notional_filter['maxNotional']:
+            print(f"Стоимость ордера слишком велика: максимальный размер {notional_filter['maxNotional']} USDT.")
+            return
+
+        # Размещение ордера
+        order = client.order_market_buy(
+            symbol=symbol,
+            quantity=adjusted_qty
+        )
+        print(f"Успешно куплено {adjusted_qty} LTC за {cost} USDT.")
+        return order
+
+    except BinanceAPIException as e:
+        print(f"Ошибка при покупке: {e}")
+        return None
+
+
+
+
+
+def withdraw(asset, address, amount, network=None):
+    """Вывод средств на внешний адрес."""
+    try:
+        result = client.withdraw(
+            coin=asset,
+            address=address,
+            amount=amount,
+            network=network
+        )
+        print(f"Вывод успешно выполнен: {result}")
+        return result
+    except BinanceAPIException as e:
+        print(f"Ошибка вывода: {e}")
+        return None
