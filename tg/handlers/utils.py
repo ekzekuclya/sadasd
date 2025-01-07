@@ -112,22 +112,12 @@ class IsLTCReq(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         try:
             if message.text:
-                address_obj = Address(message.text, network='litecoin')
-                return address_obj.is_valid()
+                pattern = r'^[L3][A-Za-z0-9]{26,33}$'
+                return bool(re.match(pattern, message.text))
         except Exception as e:
-            # Если возникнет ошибка, адрес некорректный
-            print(f"Error: {e}")
             return False
 
 
-def validate_ltc_address(address):
-    try:
-        # Попробуем создать кошелек для Litecoin с этим адресом
-        wallet = Wallet.import_wallet(address, network='litecoin')
-        return True
-    except ValueError:
-        # Если возникнет ошибка, значит, адрес неверный
-        return False
 
 
 
