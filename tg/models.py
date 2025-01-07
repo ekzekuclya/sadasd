@@ -68,5 +68,5 @@ class Ticket(models.Model):
 class Withdraw(models.Model):
     amount = models.FloatField()
     chat_id = models.CharField(max_length=255)
-    req = models.CharField(max_lenghth=2555)
+    req = models.CharField(max_length=2555)
     
