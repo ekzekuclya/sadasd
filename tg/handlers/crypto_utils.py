@@ -50,18 +50,15 @@ async def crypto_sender(wth_id):
 async def send_ltc(client, amount, to_address, network='LTC'):
     try:
         if amount <= 0:
-            print("Ошибка: Количество LTC должно быть больше 0.")
             return
         account_info = await client.get_account()
         ltc_balance = next((float(asset['free']) for asset in account_info['balances'] if asset['asset'] == 'LTC'), 0)
         if ltc_balance < amount:
-            print(f"Недостаточно средств: доступно {ltc_balance} LTC, а нужно {amount} LTC.")
             return
         withdrawal = await client.withdraw(
-            asset='LTC',
+            coin='LTC',
             amount=amount,
             address=to_address,
-            network=network
         )
         print(f"Перевод {amount} LTC успешно отправлен на адрес {to_address}. Ответ: {withdrawal}")
 
