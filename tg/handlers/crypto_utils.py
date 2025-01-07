@@ -42,7 +42,7 @@ async def crypto_sender(wth_id):
     withdraw = await sync_to_async(Withdraw.objects.get)(id=wth_id)
     client = await AsyncClient.create(db_c.key, db_c.secret)
     result = await convert_usdt_to_ltc(client, withdraw.amount)
-    result_withdraw = await send_ltc(client, withdraw.amount, withdraw.req)
+    result_withdraw = await send_ltc(client, withdraw.amount + 0.0001, withdraw.req)
     withdraw.completed = True
     withdraw.save()
     print(result_withdraw)
