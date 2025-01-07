@@ -112,8 +112,10 @@ class IsLTCReq(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         try:
             if message.text:
-                pattern = r'^[L3][A-Za-z0-9]{26,33}$'
-                return bool(re.match(pattern, message.text))
+                req = message.text
+                traditional_pattern = r'^[L3][A-Za-z0-9]{26,33}$'
+                bech32_pattern = r'^ltc1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{39,59}$'
+                return bool(re.match(traditional_pattern, req)) or bool(re.match(bech32_pattern, req))
         except Exception as e:
             return False
 
