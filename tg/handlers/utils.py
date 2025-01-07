@@ -13,7 +13,8 @@ from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, Ch
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from bitcoinlib.wallets import Wallet
 from bitcoinlib.services.services import Service
-
+from bitcoinlib.networks import Network
+from bitcoinlib.transactions import Address
 
 
 async def convert_ltc_to_usdt(ltc_amount, count=0):
@@ -109,15 +110,15 @@ class IsFloatFilter(BaseFilter):
 
 class IsLTCReq(BaseFilter):
     async def __call__(self, message: Message) -> bool:
-
         try:
             if message.text:
-                print("[WALLET]", message.text)
-                wallet = Wallet.import_wallet(message.text, network='litecoin')
-                return True
-        except ValueError:
-            # Если возникнет ошибка, значит, адрес неверный
+                address_obj = Address(message.text, network='litecoin')
+                return address_obj.is_valid()
+        except Exception as e:
+            # Если возникнет ошибка, адрес некорректный
+            print(f"Error: {e}")
             return False
+
 
 def validate_ltc_address(address):
     try:
