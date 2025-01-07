@@ -11,6 +11,9 @@ from asgiref.sync import sync_to_async
 from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, ChatMemberOwner, ChatMemberAdministrator, \
     CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from bitcoinlib.wallets import Wallet
+from bitcoinlib.services.services import Service
+
 
 
 async def convert_ltc_to_usdt(ltc_amount, count=0):
@@ -106,26 +109,25 @@ class IsFloatFilter(BaseFilter):
 
 class IsLTCReq(BaseFilter):
     async def __call__(self, message: Message) -> bool:
-        # Регулярное выражение для проверки формата адреса LTC
-        pattern = r'^[LM3][A-Za-z0-9]{26,33}$'
-
-        # Проверяем, соответствует ли текст адресу LTC
-        if re.match(pattern, message.text):
-            return await self.check_ltc_validity(message.text)
-        return False
-
-    async def check_ltc_validity(self, address: str) -> bool:
-        url = f'https://api.blockchair.com/ltc/dashboards/address/{address}'
 
         try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-            if 'data' in data and address in data['data']:
+            if message.text:
+                print("[WALLET]", message.text)
+                wallet = Wallet.import_wallet(message.text, network='litecoin')
                 return True
+        except ValueError:
+            # Если возникнет ошибка, значит, адрес неверный
             return False
-        except requests.exceptions.RequestException:
-            return False
+
+def validate_ltc_address(address):
+    try:
+        # Попробуем создать кошелек для Litecoin с этим адресом
+        wallet = Wallet.import_wallet(address, network='litecoin')
+        return True
+    except ValueError:
+        # Если возникнет ошибка, значит, адрес неверный
+        return False
+
 
 
 async def convert_kgs_to_ltc(msg, kgs_amount):
