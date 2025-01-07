@@ -46,7 +46,7 @@ async def crypto_sender(wth_id):
     withdraw.completed = True
     withdraw.save()
 
-    await client.close_connection()
+
     return wit_id
 
 async def send_ltc(client, amount, to_address, network='LTC'):
@@ -80,8 +80,10 @@ async def txid_checker(msg, wit_id):
         txId = withdraw_by_id.get("txId")
         if txId is not None:
             await msg.answer("TXID", txId)
+            await client.close_connection()
             break
         await asyncio.sleep(5)
         if mins >= 500:
+            await client.close_connection()
             break
         mins += 1
