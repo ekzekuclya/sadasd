@@ -40,11 +40,12 @@ async def reposted_usd(msg: Message, bot: Bot):
         amount = int(text[:-1])
         await comsusdt(msg, amount, user)
         withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
-        if withdrawals:
+        if withdrawals.exists():
             for i in withdrawals:
                 i.active = False
                 i.save()
-            new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount, symbol="USDT")
+            new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
+                                                                          symbol="USDT")
         else:
             new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=amount,
                                                                           symbol="USDT")
