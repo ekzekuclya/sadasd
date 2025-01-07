@@ -81,7 +81,10 @@ async def txid_checker(msg, wit_id):
         txId = withdraw_by_id.get("txId")
         print("AFTER GET", txId)
         if txId:
-            await msg.answer("TXID", txId)
+            ticket = await sync_to_async(Ticket.objects.create)()
+            url = f"http://t.me/Dino_exbot?start={ticket.ticket}"
+            text = f"TXID - https://blockchair.com/litecoin/transaction/{txId}\n\n[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
+            await msg.answer(text, parse_mode="Markdown")
             await client.close_connection()
             break
         await asyncio.sleep(5)
