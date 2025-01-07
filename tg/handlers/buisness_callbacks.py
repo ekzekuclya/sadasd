@@ -10,7 +10,7 @@ from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, Ch
 from django.db.models import Q
 from django.utils import timezone
 
-from .crypto_utils import crypto_sender
+from .crypto_utils import crypto_sender, txid_checker
 from .start import order_sender, order_canceled, order_paid
 from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, check_invoice_paid, convert_usdt_to_ltc, \
     coms, IsUSDT, comsusdt, IsLTCReq
@@ -223,10 +223,10 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
             withdraw_id = data[1]
             withdraw = await sync_to_async(Withdraw.objects.get)(id=withdraw_id)
             if not withdraw.completed:
-                result = await crypto_sender(withdraw_id)
-                print("CALLBACK RESULT", result)
+                wit_id = await crypto_sender(withdraw_id)
+                print("CALLBACK RESULT", wit_id)
+                await asyncio.create_task(txid_checker(callback_query.message, wit_id))
                 await callback_query.answer("ЗАВЕРШЕНО")
-                await callback_query.message.answer("TXID >", result)
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
 #         text = "Сделайте выбор:"

@@ -41,19 +41,13 @@ async def crypto_sender(wth_id):
     client = await AsyncClient.create(db_c.key, db_c.secret)
     result = await convert_usdt_to_ltc(client, withdraw.amount)
     result_withdraw = await send_ltc(client, withdraw.amount + 0.0001, withdraw.req)
+    wit_id = result_withdraw.get("id")
     print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
     withdraw.completed = True
     withdraw.save()
 
-    txId = None
-    for i in range(10):
-        withdraw_by_id = await client.get_withdraw_history_id(result_withdraw.get("id"))
-        if txId:
-            break
-        txId = withdraw_by_id.get("txId")
-        await asyncio.sleep(10)
     await client.close_connection()
-    return txId
+    return wit_id
 
 async def send_ltc(client, amount, to_address, network='LTC'):
     try:
@@ -74,3 +68,15 @@ async def send_ltc(client, amount, to_address, network='LTC'):
         print(f"Произошла ошибка при отправке LTC: {e}")
 
 
+async def txid_checker(msg, wit_id):
+    db_c = await sync_to_async(Client.objects.first)()
+    client = await AsyncClient.create(db_c.key, db_c.secret)
+    txId = None
+    while True:
+        print("IN WHILE TRUE")
+        withdraw_by_id = await client.get_withdraw_history_id(wit_id)
+        print("[IN WHILE TRUE]", withdraw_by_id)
+        if txId is not None:
+            await msg.answer("TXID", txId)
+            break
+        await asyncio.sleep(5)
