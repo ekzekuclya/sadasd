@@ -78,7 +78,7 @@ async def txid_checker(msg, wit_id):
         withdraw_by_id = await client.get_withdraw_history_id(wit_id)
         print("[IN WHILE TRUE]", withdraw_by_id)
         txId = withdraw_by_id.get("txId")
-        if txId is not None:
+        if txId:
             await msg.answer("TXID", txId)
             await client.close_connection()
             break
