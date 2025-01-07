@@ -221,8 +221,12 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
         if user.is_admin:
             data = callback_query.data.split("_")
             withdraw_id = data[1]
-            await crypto_sender(withdraw_id)
-
+            withdraw = await sync_to_async(Withdraw.objects.get)(id=withdraw_id)
+            if not withdraw.completed:
+                await crypto_sender(withdraw_id)
+                await callback_query.answer("ЗАВЕРШЕНО")
+            elif withdraw.completed:
+                await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
 #         text = "Сделайте выбор:"
 #         builder = InlineKeyboardBuilder()
 #         builder.add(InlineKeyboardButton(text="Указать в LTC", callback_data="type_ltc"))

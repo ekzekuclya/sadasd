@@ -71,6 +71,7 @@ class Withdraw(models.Model):
     req = models.CharField(max_length=2555)
     active = models.BooleanField()
     symbol = models.CharField(max_length=255)
+    completed = models.BooleanField(default=False)
 
 
 class Client(models.Model):
