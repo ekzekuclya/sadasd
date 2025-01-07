@@ -217,9 +217,12 @@ async def delete_all_tickets(msg: Message):
 @router.callback_query()
 async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext, bot: Bot):
     if callback_query.data.startswith("send"):
-        data = callback_query.data.split("_")
-        withdraw_id = data[1]
-        await crypto_sender(withdraw_id)
+        user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=callback_query.from_user.id)
+        if user.is_admin:
+            data = callback_query.data.split("_")
+            withdraw_id = data[1]
+            await crypto_sender(withdraw_id)
+
 #         text = "Сделайте выбор:"
 #         builder = InlineKeyboardBuilder()
 #         builder.add(InlineKeyboardButton(text="Указать в LTC", callback_data="type_ltc"))
