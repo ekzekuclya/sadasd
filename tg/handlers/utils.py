@@ -84,7 +84,19 @@ class IsFloatFilter(BaseFilter):
             text = message.text.replace(",", ".")
             if "." in text:
                 try:
-                    float(text)
+                    amount = float(text)
+                    withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=message.chat.id, active=True)
+                    if withdrawals:
+                        for i in withdrawals:
+                            i.active = False
+                            i.save()
+                        new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
+                                                                                      amount=amount,
+                                                                                      symbol="LTC")
+                    else:
+                        new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=message.chat.id,
+                                                                                      amount=amount,
+                                                                                      symbol="LTC")
                     return True
                 except ValueError:
                     return False
