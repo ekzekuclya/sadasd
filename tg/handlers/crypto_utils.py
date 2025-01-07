@@ -62,7 +62,7 @@ async def send_ltc(client, amount, to_address, network='LTC'):
             amount=amount,
             address=to_address,
         )
-        print(f"Перевод {amount} LTC успешно отправлен на адрес {to_address}. Ответ: {withdrawal}")
+        print(f"Перевод {amount} LTC {amount} успешно отправлен на адрес {to_address}. Ответ: {withdrawal}")
         return withdrawal
     except Exception as e:
         print(f"Произошла ошибка при отправке LTC: {e}")
