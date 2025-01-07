@@ -14,7 +14,7 @@ from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, 
     coms, IsUSDT, comsusdt
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from asgiref.sync import sync_to_async
-from ..models import TelegramUser, CurrentCourse, Order, Ticket
+from ..models import TelegramUser, CurrentCourse, Order, Ticket, Withdraw
 from ..text import order_text, ticket_text
 from core.config import bot_oper, bot_main
 router = Router()
@@ -39,6 +39,12 @@ async def reposted_usd(msg: Message, bot: Bot):
         text = msg.text.strip()
         amount = int(text[:-1])
         await comsusdt(msg, amount, user)
+        withdrawals = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
+        if withdrawals:
+            for i in withdrawals:
+                i.active = False
+                i.save()
+            new_withdrawal = await sync_to_async(Withdraw.objects.create)(chat_id=msg.chat.id, amount=)
     except Exception as e:
         print(f"reposted_usd", e)
 

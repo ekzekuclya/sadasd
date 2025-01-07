@@ -69,4 +69,5 @@ class Withdraw(models.Model):
     amount = models.FloatField()
     chat_id = models.CharField(max_length=255)
     req = models.CharField(max_length=2555)
-    
+    active = models.BooleanField()
+    symbol = models.CharField(max_length=255)
