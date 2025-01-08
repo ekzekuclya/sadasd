@@ -31,7 +31,7 @@ async def draw_image(data):
     y = 140
     draw.text((x, y), text, font=font, fill=color)
 
-    font = ImageFont.truetype('../dinoex/core/tg/handlers/Roboto/Roboto-Regular.ttf', size=17)
+    font = ImageFont.truetype("tg/handlers/Roboto/Roboto-Medium.ttf", size=17)
 
     image_width, image_height = image.size
     bbox = draw.textbbox((0, 0), text, font=font)
