@@ -81,8 +81,9 @@ async def check_ltc(msg: Message):
             withdraw.req = msg.text
             withdraw.save()
             builder = InlineKeyboardBuilder()
+            order_text = (f"💵 _Сумма в LTC:_ `{withdraw.amount}`\n`{msg.text}`")
             builder.add(InlineKeyboardButton(text="💸 Отправить", callback_data=f"send_{withdraw.id}"))
-            await msg.answer(f"{withdraw.symbol} `{withdraw.amount}`\n\n`{msg.text}`", parse_mode="Markdown",
+            await msg.answer(order_text, parse_mode="Markdown",
                              reply_markup=builder.as_markup())
     except Exception as e:
         print(e)

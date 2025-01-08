@@ -105,7 +105,9 @@ async def txid_checker(msg, wit_id):
         print("AFTER GET", txId)
         if txId:
             ticket = await sync_to_async(Ticket.objects.create)()
-            text = check.format(ltc_amount=withdraw_by_id["amount"], req=withdraw_by_id["address"], txid=txId, ticket=ticket.ticket)
+            ltc_amount = withdraw_by_id.get("amount")
+            address = withdraw_by_id.get("address")
+            text = check.format(ltc_amount=ltc_amount, req=address, txid=txId, ticket=ticket.ticket)
             await msg.answer(text, parse_mode="Markdown")
             await client.close_connection()
             break
