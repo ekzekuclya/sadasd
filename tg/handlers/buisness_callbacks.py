@@ -220,6 +220,20 @@ async def delete_all_tickets(msg: Message):
         i.delete()
     await msg.answer(f"RESULT:\nactivated tickets: {activated}\nnot activated tickets:{not_activated}")
 
+from aiogram import Bot, Dispatcher, types
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, FSInputFile
+from aiogram.utils import executor
+import asyncio
+import os
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Другие необходимые импорты и настройки вашего бота
+
 @router.callback_query()
 async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext, bot: Bot):
     if callback_query.data.startswith("send"):
@@ -233,7 +247,6 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
                 withdraw.save()
                 data = await crypto_sender(withdraw_id, callback_query.message)
                 print("POLUCHENNAYA DATA", data)
-                # await asyncio.create_task(txid_checker(wit_id, callback_query.message))
                 if data:
                     temp_file_path = await draw_image(data)
 
@@ -241,13 +254,19 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
                         try:
                             await bot.send_photo(chat_id=callback_query.from_user.id, photo=FSInputFile(temp_file_path))
                         except Exception as e:
-                            await callback_query.bot.send_photo(chat_id=callback_query.from_user.id,
-                                                                photo=FSInputFile(temp_file_path))
+                            logger.error(f"Error sending photo to user: {e}")
+                            try:
+                                await callback_query.bot.send_photo(chat_id=callback_query.from_user.id,
+                                                                    photo=FSInputFile(temp_file_path))
+                            except Exception as e:
+                                logger.error(f"Error sending photo to user using callback_query.bot: {e}")
                         finally:
-                            await bot.send_photo(chat_id=callback_query.message.chat.id, photo=FSInputFile(temp_file_path))
-                        # await callback_query.bot.
-                        print("DOLJEN BYL OTPRAVIIIIIIIIT")
-                        os.remove(temp_file_path)
+                            try:
+                                await bot.send_photo(chat_id=callback_query.message.chat.id, photo=FSInputFile(temp_file_path))
+                            except Exception as e:
+                                logger.error(f"Error sending photo to chat: {e}")
+                    os.remove(temp_file_path)  # Удаляем временный файл после отправки
+
                 await callback_query.answer("ЗАВЕРШЕНО")
                 await callback_query.message.answer("♻️ _Крипта уже отправлена, ожидайте выхода в сеть_", parse_mode="Markdown")
 

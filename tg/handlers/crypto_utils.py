@@ -102,11 +102,8 @@ async def txid_checker(msg, wit_id):
     mins = 0
     txId = None
     while True:
-        print("IN WHILE TRUE")
         withdraw_by_id = await client.get_withdraw_history_id(wit_id)
-        print("[IN WHILE TRUE]", withdraw_by_id)
         txId = withdraw_by_id.get("txId")
-        print("AFTER GET", txId)
         if txId:
             ticket = await sync_to_async(Ticket.objects.create)()
             ltc_amount = withdraw_by_id.get("amount")
