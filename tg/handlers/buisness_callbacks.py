@@ -238,7 +238,9 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
                     temp_file_path = await draw_image(data)
 
                     with open(temp_file_path, 'rb') as img_file:
-                        await callback_query.message.send_photo(photo=FSInputFile(temp_file_path))
+                        # await callback_query.message.send_photo(photo=FSInputFile(temp_file_path))
+                        await callback_query.bot.send_photo(chat_id=callback_query.message.chat.id,photo=FSInputFile(temp_file_path))
+
                         os.remove(temp_file_path)
                 await callback_query.answer("ЗАВЕРШЕНО")
                 await callback_query.message.answer("♻️ _Крипта уже отправлена, ожидайте выхода в сеть_", parse_mode="Markdown")
