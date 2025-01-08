@@ -252,11 +252,10 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
 
                     with open(temp_file_path, 'rb') as img_file:
                         await callback_query.message.answer_photo(photo=FSInputFile(temp_file_path))
-                       
-                    os.remove(temp_file_path)  # Удаляем временный файл после отправки
 
+                    os.remove(temp_file_path)  # Удаляем временный файл после отправки
                 await callback_query.answer("ЗАВЕРШЕНО")
-                await callback_query.message.answer("♻️ _Крипта уже отправлена, ожидайте выхода в сеть_", parse_mode="Markdown")
+
 
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
