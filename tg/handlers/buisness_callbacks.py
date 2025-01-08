@@ -79,6 +79,9 @@ async def check_ltc(msg: Message):
             withdraw = await sync_to_async(Withdraw.objects.filter)(chat_id=msg.chat.id, active=True)
             withdraw = withdraw.first()
             withdraw.req = msg.text
+            if withdraw.symbol == "USDT":
+                ltc_amount = await convert_usdt_to_ltc(withdraw.amount)
+                withdraw.amount = ltc_amount
             withdraw.save()
             builder = InlineKeyboardBuilder()
             order_text = (f"💵 _Сумма в LTC:_ `{withdraw.amount}`\n`{msg.text}`")

@@ -33,6 +33,8 @@ async def convert_ltc_to_usdt(ltc_amount, count=0):
         print(e)
 
 
+
+
 class NewOrInactiveUserFilter(BaseFilter):
     async def __call__(self, msg: Message) -> bool:
         if msg.text:
