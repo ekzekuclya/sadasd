@@ -252,7 +252,8 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
 
                     with open(temp_file_path, 'rb') as img_file:
                         try:
-                            await bot.send_photo(chat_id=callback_query.from_user.id, photo=FSInputFile(temp_file_path))
+                            await callback_query.bot.send_photo(chat_id=callback_query.from_user.id,
+                                                                photo=FSInputFile(temp_file_path))
                         except Exception as e:
                             logger.error(f"Error sending photo to user: {e}")
                             try:
