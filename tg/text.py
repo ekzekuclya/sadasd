@@ -8,10 +8,7 @@ order_text_for_op = ("💵 _Сумма в LTC:_ `{ltc_sum}`\n"
                      "     >*{kgs_sum}*<   \n")
 
 order_paid_for_op = "Клиент отметил, что оплатил!"
-blockchain_url = f"https://blockchair.com/litecoin/transaction/{a['txId']}"
-markdown_link = f"[Проверить транзакцию в блокчейне]({blockchain_url})"
 
-text = f"TXID - https://blockchair.com/litecoin/transaction/{txId}\n\n[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
 check = ("⭐️ *Транзакция вошла в сеть!* ⭐️\n\n"
          "💲 _Колличество LTC_: `{ltc_amount}`\n"
          "✈️ _Адрес получателя_: `{req}`\n"
