@@ -13,12 +13,11 @@ async def draw_image(data):
     current_dir = Path(__file__).parent
     file_path = current_dir / "asd.jpg"
     image = Image.open(file_path)
-    # image = Image.open('asd.jpg')
     draw = ImageDraw.Draw(image)
 
     # font_path = current_dir / "Roboto/Roboto-Medium.ttf"
-    # font = ImageFont.truetype("tg/handlers/Roboto/Roboto-Medium.ttf", size=40)
-    font = ImageFont.load_default()
+    font = ImageFont.truetype("tg/handlers/Roboto/Roboto-Medium.ttf", size=40)
+    # font = ImageFont.load_default()
 
     color = (255, 255, 255)
 
@@ -32,7 +31,7 @@ async def draw_image(data):
     y = 140
     draw.text((x, y), text, font=font, fill=color)
 
-    font = ImageFont.truetype('Roboto/Roboto-Regular.ttf', size=17)
+    font = ImageFont.truetype("tg/handlers/Roboto/Roboto-Medium.ttf", size=17)
     y = 517
     right_margin = 20
     x = image_width - text_width - right_margin
