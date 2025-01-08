@@ -238,11 +238,13 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
                     temp_file_path = await draw_image(data)
 
                     with open(temp_file_path, 'rb') as img_file:
-                        # await callback_query.message.send_photo(photo=FSInputFile(temp_file_path))
-                        print("OTPRAVLYAAAAUUUUUUUUUUU")
-                        b_id = callback_query.message.business_connection_id
-                        await callback_query.bot.send_photo(chat_id=callback_query.chat.id,
-                                                            photo=FSInputFile(temp_file_path))
+                        try:
+                            await bot.send_photo(chat_id=callback_query.from_user.id, photo=FSInputFile(temp_file_path))
+                        except Exception as e:
+                            await callback_query.bot.send_photo(chat_id=callback_query.from_user.id,
+                                                                photo=FSInputFile(temp_file_path))
+                        finally:
+                            await bot.send_photo(chat_id=callback_query.message.chat.id, photo=FSInputFile(temp_file_path))
                         # await callback_query.bot.
                         print("DOLJEN BYL OTPRAVIIIIIIIIT")
                         os.remove(temp_file_path)
