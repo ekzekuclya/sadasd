@@ -6,10 +6,15 @@ from PIL import Image, ImageDraw, ImageFont
 from tempfile import NamedTemporaryFile
 from asgiref.sync import sync_to_async
 import os
-
+from pathlib import Path
 
 async def draw_image(data):
     print("Current working directory:", os.getcwd())
+    current_dir = Path(__file__).parent
+    file_path = current_dir / "asd.jpg"
+
+    # Открываем изображение
+    image = Image.open(file_path)
     image = Image.open('asd.jpg')
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('Roboto/Roboto-Medium.ttf', size=40)
