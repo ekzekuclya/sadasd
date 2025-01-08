@@ -17,7 +17,9 @@ async def draw_image(data):
     draw = ImageDraw.Draw(image)
 
     # font_path = current_dir / "Roboto/Roboto-Medium.ttf"
-    font = ImageFont.truetype("tg/handlers/Roboto/Roboto-Medium.ttf", size=40)
+    # font = ImageFont.truetype("tg/handlers/Roboto/Roboto-Medium.ttf", size=40)
+    font = ImageFont.load_default()
+
     color = (255, 255, 255)
 
     # Текст, который мы хотим нарисовать
