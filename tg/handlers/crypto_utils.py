@@ -6,7 +6,7 @@ import re
 from ..models import Withdraw, Client, Ticket
 from asgiref.sync import sync_to_async
 from binance.async_client import AsyncClient
-
+from ..text import check
 import asyncio
 
 async def convert_usdt_to_ltc(client, target_ltc_amount):
@@ -105,8 +105,7 @@ async def txid_checker(msg, wit_id):
         print("AFTER GET", txId)
         if txId:
             ticket = await sync_to_async(Ticket.objects.create)()
-            url = f"http://t.me/Dino_exbot?start={ticket.ticket}"
-            text = f"TXID - https://blockchair.com/litecoin/transaction/{txId}\n\n[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
+            text = check.format(ltc_amount=withdraw_by_id["amount"], req=withdraw_by_id["address"], txid=txId, ticket=ticket.ticket)
             await msg.answer(text, parse_mode="Markdown")
             await client.close_connection()
             break

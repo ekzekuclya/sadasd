@@ -106,6 +106,11 @@ class IsFloatFilter(BaseFilter):
         return False
 
 
+import re
+from aiogram.filters import BaseFilter
+from aiogram.types import Message
+
+
 class IsLTCReq(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         try:
@@ -113,12 +118,15 @@ class IsLTCReq(BaseFilter):
                 req = message.text
                 traditional_pattern = r'^[L3][A-Za-z0-9]{26,33}$'
                 bech32_pattern = r'^ltc1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{39,59}$'
-                return bool(re.match(traditional_pattern, req)) or bool(re.match(bech32_pattern, req))
+                p2sh_pattern = r'^M[A-Za-z0-9]{26,33}$'
+
+                return any([
+                    re.match(traditional_pattern, req),
+                    re.match(bech32_pattern, req),
+                    re.match(p2sh_pattern, req)
+                ])
         except Exception as e:
             return False
-
-
-
 
 
 async def convert_kgs_to_ltc(msg, kgs_amount):
