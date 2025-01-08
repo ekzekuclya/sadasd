@@ -251,21 +251,8 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
                     temp_file_path = await draw_image(data)
 
                     with open(temp_file_path, 'rb') as img_file:
-                        try:
-                            await callback_query.bot.send_photo(chat_id=callback_query.from_user.id,
-                                                                photo=FSInputFile(temp_file_path))
-                        except Exception as e:
-                            logger.error(f"Error sending photo to user: {e}")
-                            try:
-                                await callback_query.bot.send_photo(chat_id=callback_query.from_user.id,
-                                                                    photo=FSInputFile(temp_file_path))
-                            except Exception as e:
-                                logger.error(f"Error sending photo to user using callback_query.bot: {e}")
-                        finally:
-                            try:
-                                await bot.send_photo(chat_id=callback_query.message.chat.id, photo=FSInputFile(temp_file_path))
-                            except Exception as e:
-                                logger.error(f"Error sending photo to chat: {e}")
+                        await callback_query.message.answer_photo(photo=FSInputFile(temp_file_path))
+                       
                     os.remove(temp_file_path)  # Удаляем временный файл после отправки
 
                 await callback_query.answer("ЗАВЕРШЕНО")
