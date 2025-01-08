@@ -41,31 +41,53 @@ async def crypto_sender(db_with_id, msg):
     withdraw = await sync_to_async(Withdraw.objects.get)(id=db_with_id)
     result = await convert_usdt_to_ltc(client, withdraw.amount)
     result_withdraw = await send_ltc(client, withdraw.amount + 0.0001, withdraw.req)
-    if result_withdraw:
-        wit_id = result_withdraw.get("id")
-        asyncio.create_task(txid_checker(msg, wit_id))
+    wit_id = result_withdraw.get("id")
+    asyncio.create_task(txid_checker(msg, wit_id))
     print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
     withdraw.completed = True
     withdraw.save()
     await client.close_connection()
 
-async def send_ltc(client, amount, to_address, network='LTC'):
+
+import asyncio
+
+
+async def send_ltc(client, amount, to_address, network='LTC', retries=3, delay=5):
     try:
         if amount <= 0:
             return
-        account_info = await client.get_account()
-        ltc_balance = next((float(asset['free']) for asset in account_info['balances'] if asset['asset'] == 'LTC'), 0)
-        if ltc_balance < amount:
-            return
-        print("PRE OTPR", amount)
-        amount = round(amount, 8)
-        withdrawal = await client.withdraw(
-            coin='LTC',
-            amount=amount,
-            address=to_address,
-        )
-        print(f"Перевод {amount} LTC {amount} успешно отправлен на адрес {to_address}. Ответ: {withdrawal}")
-        return withdrawal
+
+        for attempt in range(retries):
+            try:
+                account_info = await client.get_account()
+                ltc_balance = next(
+                    (float(asset['free']) for asset in account_info['balances'] if asset['asset'] == 'LTC'), 0)
+
+                if ltc_balance < amount:
+                    print(f"Недостаточно средств. Баланс LTC: {ltc_balance}, требуется: {amount}")
+                    return
+
+                print("PRE OTPR", amount)
+                amount = round(amount, 8)
+
+                # Отправка LTC
+                withdrawal = await client.withdraw(
+                    coin='LTC',
+                    amount=amount,
+                    address=to_address,
+                )
+                print(f"Перевод {amount} LTC успешно отправлен на адрес {to_address}. Ответ: {withdrawal}")
+                return withdrawal
+
+            except Exception as e:
+                print(f"Попытка {attempt + 1} из {retries} завершилась ошибкой: {e}")
+                if attempt < retries - 1:
+                    print(f"Повтор через {delay} секунд...")
+                    await asyncio.sleep(delay)
+                else:
+                    print("Все попытки исчерпаны.")
+                    raise e
+
     except Exception as e:
         print(f"Произошла ошибка при отправке LTC: {e}")
 
