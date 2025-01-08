@@ -46,6 +46,7 @@ async def crypto_sender(db_with_id, msg):
         asyncio.create_task(txid_checker(msg, wit_id))
         print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
     await client.close_connection()
+    print("CLIENT OFFD")
     return result_withdraw
 
 import asyncio

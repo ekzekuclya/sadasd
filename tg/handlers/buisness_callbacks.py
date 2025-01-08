@@ -232,14 +232,17 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
                 withdraw.completed = True
                 withdraw.save()
                 data = await crypto_sender(withdraw_id, callback_query.message)
+                print("POLUCHENNAYA DATA", data)
                 # await asyncio.create_task(txid_checker(wit_id, callback_query.message))
+                if data:
+                    temp_file_path = await draw_image(data)
+
+                    with open(temp_file_path, 'rb') as img_file:
+                        await callback_query.message.send_photo(photo=FSInputFile(temp_file_path))
+                        os.remove(temp_file_path)
                 await callback_query.answer("ЗАВЕРШЕНО")
                 await callback_query.message.answer("♻️ _Крипта уже отправлена, ожидайте выхода в сеть_", parse_mode="Markdown")
-                temp_file_path = await draw_image(data)
 
-                with open(temp_file_path, 'rb') as img_file:
-                    await callback_query.message.send_photo(photo=FSInputFile(temp_file_path))
-                os.remove(temp_file_path)
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
 #         text = "Сделайте выбор:"
