@@ -13,9 +13,8 @@ async def draw_image(data):
     current_dir = Path(__file__).parent
     file_path = current_dir / "asd.jpg"
 
-    # Открываем изображение
     image = Image.open(file_path)
-    image = Image.open('asd.jpg')
+    # image = Image.open('asd.jpg')
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('Roboto/Roboto-Medium.ttf', size=40)
     color = (255, 255, 255)
