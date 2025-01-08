@@ -81,7 +81,7 @@ async def check_ltc(msg: Message):
             withdraw.req = msg.text
             if withdraw.symbol == "USDT":
                 ltc_amount = await convert_usdt_to_ltc(withdraw.amount)
-                withdraw.amount = ltc_amount
+                withdraw.amount = round(ltc_amount, 8)
             withdraw.save()
             builder = InlineKeyboardBuilder()
             order_text = (f"💵 _Сумма в LTC:_ `{withdraw.amount}`\n`{msg.text}`")
@@ -228,6 +228,8 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
             withdraw_id = data[1]
             withdraw = await sync_to_async(Withdraw.objects.get)(id=withdraw_id)
             if not withdraw.completed:
+                withdraw.completed = True
+                withdraw.save()
                 await crypto_sender(withdraw_id, callback_query.message)
                 # await asyncio.create_task(txid_checker(wit_id, callback_query.message))
                 await callback_query.answer("ЗАВЕРШЕНО")
