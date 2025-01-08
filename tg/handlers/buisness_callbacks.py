@@ -223,7 +223,7 @@ async def delete_all_tickets(msg: Message):
 from aiogram import Bot, Dispatcher, types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile
-from aiogram.utils import executor
+
 import asyncio
 import os
 import logging
