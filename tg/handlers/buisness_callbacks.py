@@ -6,12 +6,13 @@ from aiogram.filters import Command, CommandObject, BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup, ChatMemberOwner, ChatMemberAdministrator, \
-    CallbackQuery, BusinessConnection, KeyboardButton
+    CallbackQuery, BusinessConnection, KeyboardButton, FSInputFile
 from django.db.models import Q
 from django.utils import timezone
 from binance.async_client import AsyncClient
 
 from .crypto_utils import crypto_sender, txid_checker
+from .photo_utils import draw_image
 from .start import order_sender, order_canceled, order_paid
 from .utils import convert_ltc_to_usdt, NewOrInactiveUserFilter, IsFloatFilter, check_invoice_paid, convert_usdt_to_ltc, \
     coms, IsUSDT, comsusdt, IsLTCReq
@@ -230,10 +231,15 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
             if not withdraw.completed:
                 withdraw.completed = True
                 withdraw.save()
-                await crypto_sender(withdraw_id, callback_query.message)
+                data = await crypto_sender(withdraw_id, callback_query.message)
                 # await asyncio.create_task(txid_checker(wit_id, callback_query.message))
                 await callback_query.answer("ЗАВЕРШЕНО")
                 await callback_query.message.answer("♻️ _Крипта уже отправлена, ожидайте выхода в сеть_", parse_mode="Markdown")
+                temp_file_path = await draw_image(data)
+
+                with open(temp_file_path, 'rb') as img_file:
+                    await callback_query.message.send_photo(photo=FSInputFile(temp_file_path))
+                os.remove(temp_file_path)
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")
 #         text = "Сделайте выбор:"

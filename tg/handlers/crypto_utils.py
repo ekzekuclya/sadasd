@@ -41,11 +41,12 @@ async def crypto_sender(db_with_id, msg):
     withdraw = await sync_to_async(Withdraw.objects.get)(id=db_with_id)
     result = await convert_usdt_to_ltc(client, withdraw.amount)
     result_withdraw = await send_ltc(client, withdraw.amount + 0.0001, withdraw.req)
-    wit_id = result_withdraw.get("id")
-    asyncio.create_task(txid_checker(msg, wit_id))
-    print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
+    if result_withdraw:
+        wit_id = result_withdraw.get("id")
+        asyncio.create_task(txid_checker(msg, wit_id))
+        print("RESULT WITH DRAW CRYPTO SENDER", result_withdraw)
     await client.close_connection()
-
+    return result_withdraw
 
 import asyncio
 
