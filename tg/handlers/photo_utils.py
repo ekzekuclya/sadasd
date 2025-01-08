@@ -5,10 +5,11 @@ from aiogram.fsm.context import FSMContext
 from PIL import Image, ImageDraw, ImageFont
 from tempfile import NamedTemporaryFile
 from asgiref.sync import sync_to_async
+import os
 
 
 async def draw_image(data):
-    # Создание изображения
+    print("Current working directory:", os.getcwd())
     image = Image.open('asd.jpg')
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('Roboto/Roboto-Medium.ttf', size=40)
