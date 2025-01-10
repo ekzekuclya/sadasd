@@ -19,7 +19,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(Withdraw)
 class WithdrawAdmin(admin.ModelAdmin):
-    list_display = ['id']
+    list_display = ['id', 'chat_id']
 
 
 @admin.register(Order)
