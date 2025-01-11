@@ -30,7 +30,7 @@ async def get_profile_link(user_id: int) -> str:
     return f"tg://user?id={user_id}"
 
 
-@router.message(Command("/deladdress"))
+@router.message(Command("deladdress"))
 async def del_addresser(msg: Message):
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
