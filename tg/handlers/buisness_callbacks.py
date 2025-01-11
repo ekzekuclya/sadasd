@@ -30,8 +30,9 @@ async def get_profile_link(user_id: int) -> str:
     return f"tg://user?id={user_id}"
 
 
-@router.message(Command("deladdress"))
+@router.message(Command("deladr"))
 async def del_addressesr(msg: Message):
+    print("IN DEL ADDR")
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
     await delete_all_withdrawal_addresses(client)
@@ -141,7 +142,6 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
 
 async def delete_all_withdrawal_addresses(client):
     try:
-
         withdrawal_addresses = client.get_withdrawal_addresses()
         if withdrawal_addresses:
             print(f"Найдено {len(withdrawal_addresses)} адресов для удаления.")
@@ -157,9 +157,8 @@ async def delete_all_withdrawal_addresses(client):
             return "Нет сохранённых адресов для удаления."
     except Exception as e:
         return f"Ошибка при получении адресов: {e}"
-
-
-
+    finally:
+        await client.close_connection()
 
 
 @router.business_message(F.text == "Отправлено 👍")
@@ -178,7 +177,6 @@ async def ticket(msg: Message, bot: Bot):
         url = f"http://t.me/{user_bot}?start={ticket.ticket}"
         text = f"[🎟 *Ваш билет* 🎟]({url})\n`Нажмите на билет, для активации`"
         await msg.answer(text, parse_mode="Markdown")
-
 
 
 @router.message(Command("roulette"))
@@ -253,19 +251,6 @@ async def delete_all_tickets(msg: Message):
         i.delete()
     await msg.answer(f"RESULT:\nactivated tickets: {activated}\nnot activated tickets:{not_activated}")
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, FSInputFile
-
-import asyncio
-import os
-import logging
-
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Другие необходимые импорты и настройки вашего бота
 
 @router.callback_query()
 async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext, bot: Bot):
