@@ -35,25 +35,15 @@ async def del_addressesr(msg: Message):
     print("IN DEL ADDR")
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
-    try:
-        withdrawal_addresses = client.get_withdrawal_addresses()
-        print(withdrawal_addresses)
-        if withdrawal_addresses:
-            print(f"Найдено {len(withdrawal_addresses)} адресов для удаления.")
-            for address in withdrawal_addresses:
-                address_id = address['address']
-                try:
-                    client.delete_withdrawal_address(address_id)
-                    print(f"Адрес {address_id} удалён.")
-                except Exception as e:
-                    print(f"Ошибка при удалении адреса {address_id}: {e}")
-            return "Все адреса успешно удалены!"
-        else:
-            return "Нет сохранённых адресов для удаления."
-    except Exception as e:
-        return f"Ошибка при получении адресов: {e}"
-    finally:
-        await client.close_connection()
+    withdrawal_addresses = client.get_withdrawal_addresses()
+    print(withdrawal_addresses)
+    if withdrawal_addresses:
+        print(f"Найдено {len(withdrawal_addresses)} адресов для удаления.")
+        for address in withdrawal_addresses:
+            address_id = address['address']
+            client.delete_withdrawal_address(address_id)
+            print(f"Адрес {address_id} удалён.")
+    await client.close_connection()
 
 
 @router.business_message(IsUSDT())
