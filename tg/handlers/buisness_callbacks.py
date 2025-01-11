@@ -131,6 +131,38 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
     await msg.answer(ticket_text.format(username=names, sumtickets=count, rulya=position), parse_mode="Markdown", reply_markup=builder.as_markup())
 
 
+async def delete_all_withdrawal_addresses(client):
+    try:
+
+        withdrawal_addresses = client.get_withdrawal_addresses()
+
+        # Если адреса есть, выводим их
+        if withdrawal_addresses:
+            print(f"Найдено {len(withdrawal_addresses)} адресов для удаления.")
+
+            # Проходим по всем адресам и удаляем каждый
+            for address in withdrawal_addresses:
+                address_id = address['address']  # Получаем идентификатор адреса
+                try:
+                    client.delete_withdrawal_address(address_id)
+                    print(f"Адрес {address_id} удалён.")
+                except Exception as e:
+                    print(f"Ошибка при удалении адреса {address_id}: {e}")
+            return "Все адреса успешно удалены!"
+        else:
+            return "Нет сохранённых адресов для удаления."
+    except Exception as e:
+        return f"Ошибка при получении адресов: {e}"
+
+
+@router.message(Command("/deladdress"))
+async def del_addresser(msg: Message):
+    db_c = await sync_to_async(Client.objects.first)()
+    client = await AsyncClient.create(db_c.key, db_c.secret)
+    await del_addresser(client)
+    await msg.answer("ГОТОВО")
+
+
 @router.business_message(F.text == "Отправлено 👍")
 async def ticket(msg: Message, bot: Bot):
     user, created = await sync_to_async(TelegramUser.objects.get_or_create)(user_id=msg.from_user.id)
