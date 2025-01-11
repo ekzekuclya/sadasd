@@ -37,6 +37,7 @@ async def del_addressesr(msg: Message):
     client = await AsyncClient.create(db_c.key, db_c.secret)
     try:
         withdrawal_addresses = client.get_withdrawal_addresses()
+        print(withdrawal_addresses)
         if withdrawal_addresses:
             print(f"Найдено {len(withdrawal_addresses)} адресов для удаления.")
             for address in withdrawal_addresses:
