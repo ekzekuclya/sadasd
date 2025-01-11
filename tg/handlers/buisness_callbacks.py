@@ -30,6 +30,14 @@ async def get_profile_link(user_id: int) -> str:
     return f"tg://user?id={user_id}"
 
 
+@router.message(Command("/deladdress"))
+async def del_addresser(msg: Message):
+    db_c = await sync_to_async(Client.objects.first)()
+    client = await AsyncClient.create(db_c.key, db_c.secret)
+    await del_addresser(client)
+    await msg.answer("ГОТОВО")
+
+
 @router.business_message(IsUSDT())
 async def reposted_usd(msg: Message, bot: Bot):
     try:
@@ -135,14 +143,10 @@ async def delete_all_withdrawal_addresses(client):
     try:
 
         withdrawal_addresses = client.get_withdrawal_addresses()
-
-        # Если адреса есть, выводим их
         if withdrawal_addresses:
             print(f"Найдено {len(withdrawal_addresses)} адресов для удаления.")
-
-            # Проходим по всем адресам и удаляем каждый
             for address in withdrawal_addresses:
-                address_id = address['address']  # Получаем идентификатор адреса
+                address_id = address['address']
                 try:
                     client.delete_withdrawal_address(address_id)
                     print(f"Адрес {address_id} удалён.")
@@ -155,12 +159,7 @@ async def delete_all_withdrawal_addresses(client):
         return f"Ошибка при получении адресов: {e}"
 
 
-@router.message(Command("/deladdress"))
-async def del_addresser(msg: Message):
-    db_c = await sync_to_async(Client.objects.first)()
-    client = await AsyncClient.create(db_c.key, db_c.secret)
-    await del_addresser(client)
-    await msg.answer("ГОТОВО")
+
 
 
 @router.business_message(F.text == "Отправлено 👍")
