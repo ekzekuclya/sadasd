@@ -31,10 +31,10 @@ async def get_profile_link(user_id: int) -> str:
 
 
 @router.message(Command("deladdress"))
-async def del_addresser(msg: Message):
+async def del_addressesr(msg: Message):
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
-    await del_addresser(client)
+    await delete_all_withdrawal_addresses(client)
     await msg.answer("ГОТОВО")
 
 
