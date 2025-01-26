@@ -12,7 +12,7 @@ from aiogram.fsm.context import FSMContext
 from .utils import convert_kgs_to_ltc, name, convert_ltc_to_usdt
 from ..text import order_text_for_op
 from ..models import TelegramUser, Order, Requisites, MainLtcReq
-from core.config import bot_oper, bot_main
+from core.config import bot_main
 from aiogram.enums.parse_mode import ParseMode
 router_oper = Router()
 
