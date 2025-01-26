@@ -8,7 +8,7 @@ import asyncio
 import logging
 from aiogram.types import Message
 from aiogram import Router, Bot, F
-from core.config import bot_oper, bot_main
+from core.config import bot_main
 
 
 
