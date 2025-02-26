@@ -155,12 +155,7 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
     print(f"Позиция пользователя {user.id} по количеству активированных тикетов: {position}")
     names = f"{user.first_name if user.first_name else ''} {user.last_name if user.last_name else ''}"
     builder = InlineKeyboardBuilder()
-<<<<<<< HEAD
     builder.add(InlineKeyboardButton(text="👨‍💻 Вакансии на работу", url="https://t.me/kenolip"))
-=======
-    builder.add(InlineKeyboardButton(text="💌 Подпишись", url="https://t.me/Dino_LTC"))
-    builder.add(InlineKeyboardButton(text="👨‍💻 Вакансии на работу", url="https://t.me/zoltium"))
->>>>>>> e2f14e9983e4e9fa9c296b2752f24bf5d0643c87
     builder.adjust(1)
     await msg.answer(ticket_text.format(username=names, sumtickets=count, rulya=position), parse_mode="Markdown", reply_markup=builder.as_markup())
 
