@@ -30,8 +30,21 @@ async def get_profile_link(user_id: int) -> str:
     return f"tg://user?id={user_id}"
 
 
-@router.message(Command("deladr"))
-async def del_addressesr(msg: Message):
+@router.message(Command("send"))
+async def del_addressesr(msg: Message, bot: Bot):
+    user = await sync_to_async(TelegramUser.objects.get)(user_id=msg.from_user.id)
+    text = "Обмен LTC/USDT @JB_Change"
+    count = 0
+    if user.is_admin:
+        users = await sync_to_async(TelegramUser.objects.all)()
+        for i in users:
+            try:
+                await bot.send_message(chat_id=i.user_id, text=text)
+                count += 1
+            except Exception as e:
+                print(e)
+    await msg.answer(f"Отправлено {count} пользователям, сообщение:\n{text}")
+
     print("IN DEL ADDR")
     db_c = await sync_to_async(Client.objects.first)()
     client = await AsyncClient.create(db_c.key, db_c.secret)
@@ -44,6 +57,7 @@ async def del_addressesr(msg: Message):
             client.delete_withdrawal_address(address_id)
             print(f"Адрес {address_id} удалён.")
     await client.close_connection()
+
 
 
 @router.business_message(IsUSDT())
@@ -141,8 +155,7 @@ async def startish(msg: Message, state: FSMContext, command: CommandObject, bot:
     print(f"Позиция пользователя {user.id} по количеству активированных тикетов: {position}")
     names = f"{user.first_name if user.first_name else ''} {user.last_name if user.last_name else ''}"
     builder = InlineKeyboardBuilder()
-    builder.add(InlineKeyboardButton(text="💌 Подпишись", url="https://t.me/Dino_LTC"))
-    builder.add(InlineKeyboardButton(text="👨‍💻 Вакансии на работу", url="https://t.me/Zoltium"))
+    builder.add(InlineKeyboardButton(text="👨‍💻 Вакансии на работу", url="https://t.me/kenolip"))
     builder.adjust(1)
     await msg.answer(ticket_text.format(username=names, sumtickets=count, rulya=position), parse_mode="Markdown", reply_markup=builder.as_markup())
 
@@ -280,7 +293,6 @@ async def handle_callback_query(callback_query: CallbackQuery, state: FSMContext
 
                     os.remove(temp_file_path)  # Удаляем временный файл после отправки
                 await callback_query.answer("ЗАВЕРШЕНО")
-
 
             elif withdraw.completed:
                 await callback_query.answer("ОРДЕР УЖЕ ВЫПОЛНЕН")

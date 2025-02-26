@@ -45,7 +45,7 @@ async def main():
     await bot_main.delete_webhook(drop_pending_updates=True)
     await asyncio.gather(
         dp1.start_polling(bot_main, allowed_updates=dp1.resolve_used_update_types()),
-        dp2.start_polling(bot_oper, allowed_updates=dp2.resolve_used_update_types())
+        # dp2.start_polling(bot_oper, allowed_updates=dp2.resolve_used_update_types())
     )
 
 
