@@ -44,12 +44,11 @@ async def main():
     dp2.include_routers(router_oper)
     await bot_main.delete_webhook(drop_pending_updates=True)
     await asyncio.gather(
-<<<<<<< HEAD
+
         dp1.start_polling(bot_main, allowed_updates=dp1.resolve_used_update_types()),
         # dp2.start_polling(bot_oper, allowed_updates=dp2.resolve_used_update_types())
-=======
-        dp1.start_polling(bot_main, allowed_updates=dp1.resolve_used_update_types())
->>>>>>> e2f14e9983e4e9fa9c296b2752f24bf5d0643c87
+
+        # dp1.start_polling(bot_main, allowed_updates=dp1.resolve_used_update_types())
     )
 
 
